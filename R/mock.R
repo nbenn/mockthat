@@ -1,0 +1,166 @@
+
+#' Mock functions in a package.
+#'
+#' @description
+#' Mocking allows you to temporary replace the implementation of functions
+#' within a package, which useful for testing code that relies on functions
+#' that are slow, have unintended side effects or access resources that may
+#' not be available when testing.
+#'
+#' This works by using some C code to temporarily modify the mocked function
+#' _in place_. On exit, all functions are restored to their previous state.
+#' This is somewhat abusive of R's internals so use with care. In particular,
+#' functions in base packages cannot be mocked; to work around you'll need to
+#' make a wrapper function in your own package..
+#'
+#' @param ... named parameters redefine mocked functions, unnamed parameters
+#'   will be evaluated after mocking the functions
+#' @param .env the environment in which to patch the functions,
+#'   defaults to the top-level environment.  A character is interpreted as
+#'   package name.
+#'
+#' @examples
+#' add_one <- function(x) x + 1
+#' all.equal(add_one(2), 3)
+#' with_mock(
+#'   add_one = function(x) x - 1,
+#'   all.equal(add_one(2), 1)
+#' )
+#' square_add_one <- function(x) add_one(x)^2
+#' all.equal(square_add_one(2), 9)
+#' all.equal(
+#'   with_mock(
+#'     add_one = function(x) x - 1,
+#'     square_add_one(2)
+#'   ),
+#'   1
+#' )
+#'
+#' @return The result of the last unnamed parameter
+#'
+#' @useDynLib mockthat, .registration = TRUE
+#' @export
+#'
+with_mock <- function(..., .env = topenv()) {
+
+  dots <- eval(substitute(alist(...)))
+  mock_qual_names <- names(dots)
+
+  if (all(mock_qual_names == "")) {
+
+    warning(
+      "Not mocking anything. Please use named parameters to specify the ",
+      "functions you want to mock.",
+      call. = FALSE
+    )
+
+    code_pos <- rep(TRUE, length(dots))
+
+  } else {
+
+    code_pos <- (mock_qual_names == "")
+  }
+
+  code <- dots[code_pos]
+
+  mock_funs <- lapply(dots[!code_pos], eval, parent.frame())
+  mocks <- extract_mocks(mock_funs, .env = .env)
+
+  on.exit(lapply(mocks, reset_mock), add = TRUE)
+  lapply(mocks, set_mock)
+
+  # Evaluate the code
+  if (length(code) > 0) {
+    for (expression in code[-length(code)]) {
+      eval(expression, parent.frame())
+    }
+    # Isolate last item for visibility
+    eval(code[[length(code)]], parent.frame())
+  }
+}
+
+pkg_rx <- ".*[^:]"
+colons_rx <- "::(?:[:]?)"
+name_rx <- ".*"
+pkg_and_name_rx <- sprintf("^(?:(%s)%s)?(%s)$", pkg_rx, colons_rx, name_rx)
+
+extract_mocks <- function(funs, .env) {
+
+  if (is.environment(.env)) {
+    .env <- environmentName(.env)
+  }
+
+  mock_qual_names <- names(funs)
+
+  lapply(
+    stats::setNames(nm = mock_qual_names),
+    function(qual_name) {
+      pkg_name <- gsub(pkg_and_name_rx, "\\1", qual_name)
+
+      if (is_base_pkg(pkg_name)) {
+
+        stop(
+          "Can't mock functions in base packages (", pkg_name, ")",
+          call. = FALSE
+        )
+      }
+
+      name <- gsub(pkg_and_name_rx, "\\2", qual_name)
+
+      if (pkg_name == "") {
+        pkg_name <- .env
+      }
+
+      env <- asNamespace(pkg_name)
+
+      if (!exists(name, envir = env, mode = "function")) {
+
+        stop(
+          "Function ", name, " not found in environment ",
+          environmentName(env), ".",
+          call. = FALSE
+        )
+      }
+
+      mock(name = name, env = env, new = funs[[qual_name]])
+    }
+  )
+}
+
+mock <- function(name, env, new) {
+
+  target_value <- get(name, envir = env, mode = "function")
+
+  structure(
+    list(
+      env = env,
+      name = as.name(name),
+      orig_value = .Call(duplicate_, target_value),
+      target_value = target_value,
+      new_value = new
+    ),
+    class = "mock"
+  )
+}
+
+set_mock <- function(mock) {
+
+  .Call(reassign_function, mock$name, mock$env, mock$target_value,
+        mock$new_value)
+}
+
+reset_mock <- function(mock) {
+
+  .Call(reassign_function, mock$name, mock$env, mock$target_value,
+        mock$orig_value)
+}
+
+is_base_pkg <- function(x) {
+  x %in% rownames(utils::installed.packages(priority = "base"))
+}
+
+test_mock1 <- function() {
+  test_mock2()
+}
+
+test_mock2 <- function() 10

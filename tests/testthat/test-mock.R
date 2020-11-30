@@ -13,6 +13,7 @@ test_that("can change value of internal function", {
       stop("!")
     )
   )
+
   expect_equal(test_mock1(), 10)
 })
 
@@ -29,29 +30,22 @@ test_that("mocks can access local variables", {
 
 test_that("non-empty mock with return value", {
 
-  expect_true(with_mock(
-    compare = function(x, y, ...) list(equal = TRUE, message = "TRUE"),
-    TRUE
-  ))
+  expect_true(
+    with_mock(all.equal = function(x, y, ...) FALSE, TRUE)
+  )
 })
 
-test_that("nested mock", {
+test_that("mock base functions", {
 
   with_mock(
     all.equal = function(x, y, ...) TRUE,
-    {
-      with_mock(
-        expect_warning = expect_error,
-        {
-          expect_warning(stopifnot(!compare(3, "a")$equal))
-        }
-      )
-    },
-    .env = asNamespace("base")
+    expect_true(compare(3, "a")$equal)
   )
 
-  expect_false(isTRUE(all.equal(3, 5)))
-  expect_warning(warning("test"))
+  expect_error(
+    with_mock(max = min, summary(1:5)),
+    "Can't mock functions of type builtin"
+  )
 })
 
 test_that("can't mock non-existing", {

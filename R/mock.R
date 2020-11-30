@@ -13,11 +13,13 @@
 #' functions in base packages cannot be mocked; to work around you'll need to
 #' make a wrapper function in your own package..
 #'
-#' @param ... named parameters redefine mocked functions, unnamed parameters
+#' @param ... Named parameters redefine mocked functions, unnamed parameters
 #'   will be evaluated after mocking the functions
-#' @param .env the environment in which to patch the functions,
+#' @param mock_env The environment in which to patch the functions,
 #'   defaults to the top-level environment.  A character is interpreted as
 #'   package name.
+#' @param eval_env Environment in which expressions passed as `...` are
+#'   evaluated, defaults to [parent.frame()].
 #'
 #' @examples
 #' add_one <- function(x) x + 1
@@ -36,12 +38,12 @@
 #'   1
 #' )
 #'
-#' @return The result of the last unnamed parameter
+#' @return The result of the last unnamed argument passed as `...` (evaluated
+#'   in the environment passed as `eval_env`)
 #'
-#' @useDynLib mockthat, .registration = TRUE
 #' @export
 #'
-with_mock <- function(..., .env = topenv()) {
+with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 
   dots <- eval(substitute(alist(...)))
   mock_qual_names <- names(dots)
@@ -63,8 +65,8 @@ with_mock <- function(..., .env = topenv()) {
 
   code <- dots[code_pos]
 
-  mock_funs <- lapply(dots[!code_pos], eval, parent.frame())
-  mocks <- extract_mocks(mock_funs, .env = .env)
+  mock_funs <- lapply(dots[!code_pos], eval, eval_env)
+  mocks <- extract_mocks(mock_funs, env = mock_env)
 
   on.exit(lapply(mocks, reset_mock), add = TRUE)
   lapply(mocks, set_mock)
@@ -72,10 +74,21 @@ with_mock <- function(..., .env = topenv()) {
   # Evaluate the code
   if (length(code) > 0) {
     for (expression in code[-length(code)]) {
-      eval(expression, parent.frame())
+      eval(expression, eval_env)
     }
     # Isolate last item for visibility
-    eval(code[[length(code)]], parent.frame())
+    eval(code[[length(code)]], eval_env)
+  }
+}
+
+pkg_env <- function() {
+
+  res <- testthat::testing_package()
+
+  if (identical(res, "")) {
+    topenv()
+  } else {
+    asNamespace(res)
   }
 }
 
@@ -84,47 +97,58 @@ colons_rx <- "::(?:[:]?)"
 name_rx <- ".*"
 pkg_and_name_rx <- sprintf("^(?:(%s)%s)?(%s)$", pkg_rx, colons_rx, name_rx)
 
-extract_mocks <- function(funs, .env) {
+extract_mocks <- function(funs, env) {
 
-  if (is.environment(.env)) {
-    .env <- environmentName(.env)
+  if (is.environment(env)) {
+    env <- environmentName(env)
   }
 
-  mock_qual_names <- names(funs)
-
-  lapply(
-    stats::setNames(nm = mock_qual_names),
-    function(qual_name) {
-      pkg_name <- gsub(pkg_and_name_rx, "\\1", qual_name)
-
-      if (is_base_pkg(pkg_name)) {
-
-        stop(
-          "Can't mock functions in base packages (", pkg_name, ")",
-          call. = FALSE
-        )
-      }
-
-      name <- gsub(pkg_and_name_rx, "\\2", qual_name)
-
-      if (pkg_name == "") {
-        pkg_name <- .env
-      }
-
-      env <- asNamespace(pkg_name)
-
-      if (!exists(name, envir = env, mode = "function")) {
-
-        stop(
-          "Function ", name, " not found in environment ",
-          environmentName(env), ".",
-          call. = FALSE
-        )
-      }
-
-      mock(name = name, env = env, new = funs[[qual_name]])
-    }
+  Map(
+    extract_mock,
+    stats::setNames(nm = names(funs)),
+    funs,
+    MoreArgs = list(env = env)
   )
+}
+
+extract_mock <- function(fun_name, new_val, env) {
+
+  pkg_name <- gsub(pkg_and_name_rx, "\\1", fun_name)
+
+  if (is_base_pkg(pkg_name)) {
+
+    stop(
+      "Can't mock functions in base packages (", pkg_name, ")",
+      call. = FALSE
+    )
+  }
+
+  name <- gsub(pkg_and_name_rx, "\\2", fun_name)
+
+  if (pkg_name == "") {
+    pkg_name <- env
+  }
+
+  env <- asNamespace(pkg_name)
+  fun <- get0(name, envir = env, mode = "function")
+
+  if (is.null(fun)) {
+
+    stop(
+      "Function ", name, " not found in environment ",
+      environmentName(env), ".",
+      call. = FALSE
+    )
+
+  } else if (is.primitive(fun)) {
+
+    stop(
+      "Can't mock functions of type ", typeof(fun),
+      call. = FALSE
+    )
+  }
+
+  mock(name = name, env = env, new = new_val)
 }
 
 mock <- function(name, env, new) {
@@ -133,26 +157,33 @@ mock <- function(name, env, new) {
 
   structure(
     list(
-      env = env,
-      name = as.name(name),
-      orig_value = .Call(duplicate_, target_value),
-      target_value = target_value,
+      name = name,
+      env = environment(target_value),
+      orig_value = target_value,
       new_value = new
     ),
     class = "mock"
   )
 }
 
-set_mock <- function(mock) {
+do_assign <- function(name, val, env) {
 
-  .Call(reassign_function, mock$name, mock$env, mock$target_value,
-        mock$new_value)
+  if (bindingIsLocked(name, env)) {
+    on.exit(lockBinding(name, env))
+    unlockBinding(name, env)
+  }
+
+  assign(name, val, envir = env)
+
+  invisible(NULL)
+}
+
+set_mock <- function(mock) {
+  do_assign(mock$name, mock$new_value, mock$env)
 }
 
 reset_mock <- function(mock) {
-
-  .Call(reassign_function, mock$name, mock$env, mock$target_value,
-        mock$orig_value)
+  do_assign(mock$name, mock$orig_value, mock$env)
 }
 
 is_base_pkg <- function(x) {
@@ -164,3 +195,13 @@ test_mock1 <- function() {
 }
 
 test_mock2 <- function() 10
+
+some_symbol <- 42
+
+mockee <- function() stop("Not mocking")
+
+mockee2 <- function() stop("Not mocking (2)")
+
+mockee3 <- function() mockee()
+
+disp <- function(x) stats::sd(x)

@@ -4,18 +4,22 @@
 \alias{with_mock}
 \title{Mock functions in a package.}
 \usage{
-with_mock(..., .env = topenv())
+with_mock(..., mock_env = pkg_env(), eval_env = parent.frame())
 }
 \arguments{
-\item{...}{named parameters redefine mocked functions, unnamed parameters
+\item{...}{Named parameters redefine mocked functions, unnamed parameters
 will be evaluated after mocking the functions}
 
-\item{.env}{the environment in which to patch the functions,
+\item{mock_env}{The environment in which to patch the functions,
 defaults to the top-level environment.  A character is interpreted as
 package name.}
+
+\item{eval_env}{Environment in which expressions passed as \code{...} are
+evaluated, defaults to \code{\link[=parent.frame]{parent.frame()}}.}
 }
 \value{
-The result of the last unnamed parameter
+The result of the last unnamed argument passed as \code{...} (evaluated
+in the environment passed as \code{eval_env})
 }
 \description{
 Mocking allows you to temporary replace the implementation of functions

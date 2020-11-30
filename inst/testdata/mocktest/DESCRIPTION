@@ -1,0 +1,21 @@
+Package: mocktest
+Title: Package for testing 'mockthat'
+Version: 0.1.0
+Authors@R:
+    person(given = "Nicolas",
+           family = "Bennett",
+           role = c("aut", "cre"),
+           email = "nicolas.bennett@stat.math.ethz.ch")
+Description: As the main purpose of 'mockthat' is mocking functions within
+    a package being tested, this dummy package is supplied with 'mockthat'
+    for testing purposes.
+License: MIT + file LICENSE
+Imports:
+		stats
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1.9000
+Suggests:
+    testthat,
+    mockthat

@@ -34,20 +34,9 @@ functions in base packages cannot be mocked; to work around you'll need to
 make a wrapper function in your own package..
 }
 \examples{
-add_one <- function(x) x + 1
-all.equal(add_one(2), 3)
 with_mock(
-  add_one = function(x) x - 1,
-  all.equal(add_one(2), 1)
-)
-square_add_one <- function(x) add_one(x)^2
-all.equal(square_add_one(2), 9)
-all.equal(
-  with_mock(
-    add_one = function(x) x - 1,
-    square_add_one(2)
-  ),
-  1
+  `curl::curl_fetch_memory` = function(...) "mocked request",
+  curl::curl_fetch_memory("https://eu.httpbin.org/get?foo=123")
 )
 
 }

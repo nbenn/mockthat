@@ -1,6 +1,13 @@
 
+# pkg_dir <- rprojroot::is_r_package$find_file("inst", "testdata", "mocktest")
+# for rebuilding, run
+# devtools::document(pkg_dir)
+# devtools::check(pkg_dir)
+# devtools::build(pkg_dir)
 # for running tests interactively, run
-# load_all(rprojroot::is_r_package$find_file("inst", "testdata", "mocktest"))
+# Sys.setenv(TESTTHAT_PKG = "mockthat")
+# library(testthat)
+# load_all(pkg_dir)
 
 test_pkg <- "mocktest"
 

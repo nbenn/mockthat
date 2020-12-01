@@ -22,20 +22,9 @@
 #'   evaluated, defaults to [parent.frame()].
 #'
 #' @examples
-#' add_one <- function(x) x + 1
-#' all.equal(add_one(2), 3)
 #' with_mock(
-#'   add_one = function(x) x - 1,
-#'   all.equal(add_one(2), 1)
-#' )
-#' square_add_one <- function(x) add_one(x)^2
-#' all.equal(square_add_one(2), 9)
-#' all.equal(
-#'   with_mock(
-#'     add_one = function(x) x - 1,
-#'     square_add_one(2)
-#'   ),
-#'   1
+#'   `curl::curl_fetch_memory` = function(...) "mocked request",
+#'   curl::curl_fetch_memory("https://eu.httpbin.org/get?foo=123")
 #' )
 #'
 #' @return The result of the last unnamed argument passed as `...` (evaluated
@@ -68,7 +57,7 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
   mock_funs <- lapply(dots[!code_pos], eval, eval_env)
   mocks <- extract_mocks(mock_funs, env = mock_env)
 
-  on.exit(lapply(mocks, reset_mock), add = TRUE)
+  on.exit(lapply(mocks, reset_mock))
   lapply(mocks, set_mock)
 
   # Evaluate the code
@@ -92,11 +81,6 @@ pkg_env <- function() {
   }
 }
 
-pkg_rx <- ".*[^:]"
-colons_rx <- "::(?:[:]?)"
-name_rx <- ".*"
-pkg_and_name_rx <- sprintf("^(?:(%s)%s)?(%s)$", pkg_rx, colons_rx, name_rx)
-
 extract_mocks <- function(funs, env) {
 
   if (is.environment(env)) {
@@ -113,53 +97,51 @@ extract_mocks <- function(funs, env) {
 
 extract_mock <- function(fun_name, new_val, env) {
 
-  pkg_name <- gsub(pkg_and_name_rx, "\\1", fun_name)
+  rgx <- "^(?:(.*[^:])::(?:[:]?))?(.*)$"
 
-  if (is_base_pkg(pkg_name)) {
-
-    stop(
-      "Can't mock functions in base packages (", pkg_name, ")",
-      call. = FALSE
-    )
-  }
-
-  name <- gsub(pkg_and_name_rx, "\\2", fun_name)
+  pkg_name <- gsub(rgx, "\\1", fun_name)
+  fun_name <- gsub(rgx, "\\2", fun_name)
 
   if (pkg_name == "") {
     pkg_name <- env
   }
 
   env <- asNamespace(pkg_name)
-  fun <- get0(name, envir = env, mode = "function")
+  fun <- get0(fun_name, envir = env, mode = "function")
 
   if (is.null(fun)) {
 
     stop(
-      "Function ", name, " not found in environment ",
+      "Function `", fun_name, "` not found in environment ",
       environmentName(env), ".",
-      call. = FALSE
-    )
-
-  } else if (is.primitive(fun)) {
-
-    stop(
-      "Can't mock functions of type ", typeof(fun),
       call. = FALSE
     )
   }
 
-  mock(name = name, env = env, new = new_val)
+  mock(fun_name, fun, new_val)
 }
 
-mock <- function(name, env, new) {
+mock <- function(name, fun, new) {
 
-  target_value <- get(name, envir = env, mode = "function")
+  env <- environment(fun)
+
+  stopifnot(isNamespace(env), is.function(fun), is.function(new))
+
+  nsn <- getNamespaceName(env)
+
+  if (is_base_pkg(nsn)) {
+
+    stop(
+      "Can't mock functions in ", nsn, " package.",
+      call. = FALSE
+    )
+  }
 
   structure(
     list(
       name = name,
-      env = environment(target_value),
-      orig_value = target_value,
+      env = env,
+      orig_value = fun,
       new_value = new
     ),
     class = "mock"
@@ -189,19 +171,3 @@ reset_mock <- function(mock) {
 is_base_pkg <- function(x) {
   x %in% rownames(utils::installed.packages(priority = "base"))
 }
-
-test_mock1 <- function() {
-  test_mock2()
-}
-
-test_mock2 <- function() 10
-
-some_symbol <- 42
-
-mockee <- function() stop("Not mocking")
-
-mockee2 <- function() stop("Not mocking (2)")
-
-mockee3 <- function() mockee()
-
-disp <- function(x) stats::sd(x)

@@ -10,8 +10,11 @@ Description: As the main purpose of 'mockthat' is mocking functions within
     a package being tested, this dummy package is supplied with 'mockthat'
     for testing purposes.
 License: MIT + file LICENSE
+Depends:
+		curl
 Imports:
-		stats
+		utils,
+		jsonlite
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

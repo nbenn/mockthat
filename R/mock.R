@@ -168,14 +168,14 @@ mock <- function(name, env, new) {
 
 do_assign <- function(name, val, env) {
 
-  if (bindingIsLocked(name, env)) {
-    on.exit(lockBinding(name, env))
-    unlockBinding(name, env)
+  if (isNamespace(env)) {
+
+    utils::assignInNamespace(name, val, env)
+
+  } else {
+
+    assign(name, val, envir = env)
   }
-
-  assign(name, val, envir = env)
-
-  invisible(NULL)
 }
 
 set_mock <- function(mock) {

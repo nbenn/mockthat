@@ -44,11 +44,12 @@
 within a package, which useful for testing code that relies on functions
 that are slow, have unintended side effects or access resources that may
 not be available when testing.
-This works by using some C code to temporarily modify the mocked function
-in place. On exit, all functions are restored to their previous state.
-This is somewhat abusive of R's internals so use with care. In particular,
-functions in base packages cannot be mocked; to work around you'll need to
-make a wrapper function in your own package.." />
+Up until recently, such capability was offered via testthat::with_mock(),
+but with release of version 3.0.0 and introduction of edition 3, this was
+deprecated from testthat, leaving it to third party packages to replace this
+feature. This mocking implementation is powered by
+utils::assignInNamespace() and therefore, caveats outlined in the
+corresponding documentation apply here too." />
 
 
 
@@ -80,7 +81,7 @@ make a wrapper function in your own package.." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mockthat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -129,11 +130,12 @@ make a wrapper function in your own package.." />
 within a package, which useful for testing code that relies on functions
 that are slow, have unintended side effects or access resources that may
 not be available when testing.</p>
-<p>This works by using some C code to temporarily modify the mocked function
-<em>in place</em>. On exit, all functions are restored to their previous state.
-This is somewhat abusive of R's internals so use with care. In particular,
-functions in base packages cannot be mocked; to work around you'll need to
-make a wrapper function in your own package..</p>
+<p>Up until recently, such capability was offered via <code><a href='https://testthat.r-lib.org/reference/with_mock.html'>testthat::with_mock()</a></code>,
+but with release of version 3.0.0 and introduction of edition 3, this was
+deprecated from testthat, leaving it to third party packages to replace this
+feature. This mocking implementation is powered by
+<code><a href='https://rdrr.io/r/utils/getFromNamespace.html'>utils::assignInNamespace()</a></code> and therefore, caveats outlined in the
+corresponding documentation apply here too.</p>
     </div>
 
     <pre class="usage"><span class='fu'>with_mock</span><span class='op'>(</span><span class='va'>...</span>, mock_env <span class='op'>=</span> <span class='fu'>pkg_env</span><span class='op'>(</span><span class='op'>)</span>, eval_env <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sys.parent.html'>parent.frame</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
@@ -149,7 +151,7 @@ will be evaluated after mocking the functions</p></td>
     <tr>
       <th>mock_env</th>
       <td><p>The environment in which to patch the functions,
-defaults to the top-level environment.  A character is interpreted as
+defaults to the top-level environment. A string is interpreted as
 package name.</p></td>
     </tr>
     <tr>

@@ -9,6 +9,9 @@
 # library(testthat)
 # load_all(pkg_dir)
 
+# according to https://stackoverflow.com/a/27994299/3855417
+Sys.setenv("R_TESTS" = "")
+
 test_pkg <- "mocktest"
 
 files <- list.files(

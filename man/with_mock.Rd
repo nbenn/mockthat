@@ -34,9 +34,34 @@ functions in base packages cannot be mocked; to work around you'll need to
 make a wrapper function in your own package..
 }
 \examples{
+
+url <- "https://eu.httpbin.org/get?foo=123"
+mok <- function(...) "mocked request"
+
 with_mock(
-  `curl::curl_fetch_memory` = function(...) "mocked request",
-  curl::curl_fetch_memory("https://eu.httpbin.org/get?foo=123")
+  `curl::curl_fetch_memory` = mok,
+  curl::curl_fetch_memory(url)
+)
+
+dl_fun <- function(x) curl::curl_fetch_memory(x)
+
+with_mock(
+  `curl::curl_fetch_memory` = mok,
+  dl_fun(url)
+)
+
+json <- function(...) '["mocked request"]'
+
+with_mock(
+  `curl::curl` = json,
+  jsonlite::fromJSON(url)
+)
+
+with_mock(
+  `curl::curl` = json,
+  parse_and_simplify = function(txt, ...) gsub('\\\\[?\\\\"\\\\]?', "", txt),
+  jsonlite::fromJSON(url),
+  mock_env = "jsonlite"
 )
 
 }

@@ -16,11 +16,10 @@ Description: With the deprecation of mocking capabilities shipped with
     function 'with_mock()' is modeled after the eponymous 'testthat' function
     with the intention of providing a drop-in replacement.
 License: MIT + file LICENSE
-Encoding: UTF-8
-Language: en-US
-LazyData: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+URL: https://nbenn.github.io/mockthat/
+BugReports: https://github.com/nbenn/mockthat/issues
+Depends:
+    R (>= 3.4.0)
 Imports:
     testthat,
     utils
@@ -28,3 +27,8 @@ Suggests:
     curl,
     jsonlite,
     datasets
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1

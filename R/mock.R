@@ -114,7 +114,7 @@ extract_mocks <- function(funs, env) {
 
   Map(
     extract_mock,
-    stats::setNames(nm = names(funs)),
+    names(funs),
     funs,
     MoreArgs = list(env = env)
   )

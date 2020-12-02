@@ -11,7 +11,7 @@ with_mock(..., mock_env = pkg_env(), eval_env = parent.frame())
 will be evaluated after mocking the functions}
 
 \item{mock_env}{The environment in which to patch the functions,
-defaults to the top-level environment.  A character is interpreted as
+defaults to the top-level environment. A string is interpreted as
 package name.}
 
 \item{eval_env}{Environment in which expressions passed as \code{...} are
@@ -27,11 +27,12 @@ within a package, which useful for testing code that relies on functions
 that are slow, have unintended side effects or access resources that may
 not be available when testing.
 
-This works by using some C code to temporarily modify the mocked function
-\emph{in place}. On exit, all functions are restored to their previous state.
-This is somewhat abusive of R's internals so use with care. In particular,
-functions in base packages cannot be mocked; to work around you'll need to
-make a wrapper function in your own package..
+Up until recently, such capability was offered via \code{\link[testthat:with_mock]{testthat::with_mock()}},
+but with release of version 3.0.0 and introduction of edition 3, this was
+deprecated from testthat, leaving it to third party packages to replace this
+feature. This mocking implementation is powered by
+\code{\link[utils:getFromNamespace]{utils::assignInNamespace()}} and therefore, caveats outlined in the
+corresponding documentation apply here too.
 }
 \examples{
 

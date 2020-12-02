@@ -7,16 +7,17 @@
 #' that are slow, have unintended side effects or access resources that may
 #' not be available when testing.
 #'
-#' This works by using some C code to temporarily modify the mocked function
-#' _in place_. On exit, all functions are restored to their previous state.
-#' This is somewhat abusive of R's internals so use with care. In particular,
-#' functions in base packages cannot be mocked; to work around you'll need to
-#' make a wrapper function in your own package..
+#' Up until recently, such capability was offered via [testthat::with_mock()],
+#' but with release of version 3.0.0 and introduction of edition 3, this was
+#' deprecated from testthat, leaving it to third party packages to replace this
+#' feature. This mocking implementation is powered by
+#' [utils::assignInNamespace()] and therefore, caveats outlined in the
+#' corresponding documentation apply here too.
 #'
 #' @param ... Named parameters redefine mocked functions, unnamed parameters
 #'   will be evaluated after mocking the functions
 #' @param mock_env The environment in which to patch the functions,
-#'   defaults to the top-level environment.  A character is interpreted as
+#'   defaults to the top-level environment. A string is interpreted as
 #'   package name.
 #' @param eval_env Environment in which expressions passed as `...` are
 #'   evaluated, defaults to [parent.frame()].

@@ -1,11 +1,11 @@
 Package: mockthat
-Title: Function mocking for unit testing in R
+Title: Function Mocking for Unit Testing in R
 Version: 0.1.0
 Authors@R:
     person(given = "Nicolas",
            family = "Bennett",
            role = c("aut", "cre"),
-           email = "nicolas.bennett@stat.meth.ethz.ch")
+           email = "nicolas.bennett@stat.math.ethz.ch")
 Description: With the deprecation of mocking capabilities shipped with
     'testthat' as of 'edition 3' it is left to third-party packages to replace
     this functionality, which in some test-scenarios is essential in order to
@@ -17,6 +17,7 @@ Description: With the deprecation of mocking capabilities shipped with
     with the intention of providing a drop-in replacement.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-US
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1

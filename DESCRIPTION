@@ -7,14 +7,14 @@ Authors@R:
            role = c("aut", "cre"),
            email = "nicolas.bennett@stat.meth.ethz.ch")
 Description: With the deprecation of mocking capabilities shipped with
-		'testthat' as of 'edition 3' it is left to third-party packages to replace
-		this functionality, which in some test-scenarios is essential in order to
-		run unit tests in limited environments (such as no Internet connection).
-		Mocking in this setting means temporarily substituting a function with a
-		stub that acts in some sense like the original function (for example by
-		serving a HTTP response that has been cached as a file). The only exported
-		function 'with_mock()' is modeled after the eponymous 'testthat' function
-		with the intention of providing a drop-in replacement.
+    'testthat' as of 'edition 3' it is left to third-party packages to replace
+    this functionality, which in some test-scenarios is essential in order to
+    run unit tests in limited environments (such as no Internet connection).
+    Mocking in this setting means temporarily substituting a function with a
+    stub that acts in some sense like the original function (for example by
+    serving a HTTP response that has been cached as a file). The only exported
+    function 'with_mock()' is modeled after the eponymous 'testthat' function
+    with the intention of providing a drop-in replacement.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -22,7 +22,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports:
     testthat,
-		utils
+    utils
 Suggests:
     curl,
     jsonlite,

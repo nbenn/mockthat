@@ -150,14 +150,10 @@ mock <- function(name, fun, new) {
 
   env <- environment(fun)
 
-  stopifnot(isNamespace(env), is.function(fun), is.function(new))
-
-  nsn <- getNamespaceName(env)
-
-  if (is_base_pkg(nsn)) {
+  if (isNamespace(env) && is_base_pkg(getNamespaceName(env))) {
 
     stop(
-      "Can't mock functions in ", nsn, " package.",
+      "Can't mock functions in ", getNamespaceName(env), " package.",
       call. = FALSE
     )
   }

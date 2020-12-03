@@ -15,12 +15,12 @@
 #' corresponding documentation apply here too.
 #'
 #' @param ... Named parameters redefine mocked functions, unnamed parameters
-#'   will be evaluated after mocking the functions
+#' will be evaluated after mocking the functions.
 #' @param mock_env The environment in which to patch the functions,
-#'   defaults to the top-level environment. A string is interpreted as
-#'   package name.
+#' defaults to the top-level environment. A string is interpreted as package
+#' name.
 #' @param eval_env Environment in which expressions passed as `...` are
-#'   evaluated, defaults to [parent.frame()].
+#' evaluated, defaults to [parent.frame()].
 #'
 #' @examples
 #'
@@ -47,17 +47,40 @@
 #' )
 #'
 #' with_mock(
+#'   `curl::curl` = '["mocked request"]',
+#'   jsonlite::fromJSON(url)
+#' )
+#'
+#' with_mock(
+#'   `curl::curl` = quote({
+#'     x <- "mocked request"
+#'     paste0('["', x, '"]')
+#'   }),
+#'   jsonlite::fromJSON(url)
+#' )
+#'
+#' with_mock(
 #'   `curl::curl` = json,
 #'   parse_and_simplify = function(txt, ...) gsub('\\[?\\"\\]?', "", txt),
 #'   jsonlite::fromJSON(url),
 #'   mock_env = "jsonlite"
 #' )
 #'
+#' mk <- mock("mocked request")
+#' dl <- function(url) curl::curl(url)
+#'
+#' with_mock(`curl::curl` = mk, dl(url))
+#'
+#' mock_call(mk)
+#' mock_args(mk)
+#'
 #' @return The result of the last unnamed argument passed as `...` (evaluated
-#'   in the environment passed as `eval_env`)
+#' in the environment passed as `eval_env`) in the case of `local_mock()` and
+#' a list of functions or `mock_fun` objects (invisibly) in the case of
+#' `local_mock()`.
 #'
+#' @rdname mock
 #' @export
-#'
 with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 
   dots <- eval(substitute(alist(...)))
@@ -80,8 +103,9 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 
   code <- dots[code_pos]
 
-  mock_funs <- lapply(dots[!code_pos], eval, eval_env)
-  mocks <- extract_mocks(mock_funs, env = mock_env)
+  mfuns <- lapply(dots[!code_pos], eval, eval_env)
+  mfuns <- lapply(mfuns, mock_expr, eval_env)
+  mocks <- extract_mocks(mfuns, env = mock_env)
 
   on.exit(lapply(mocks, reset_mock))
   lapply(mocks, set_mock)
@@ -94,6 +118,114 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
     # Isolate last item for visibility
     eval(code[[length(code)]], eval_env)
   }
+}
+
+#' A `local_*()` variant of `with_mock()` is available as `local_mock()`, in
+#' line with current `testthat` practice. Powered by [withr::defer()], mocks
+#' are active for the life-time of the environment passed as `local_env`. If
+#' non-function objects are passed as `...`, `mock_fun` objects are created (
+#' and returned invisibly), which can be queried for call and argument
+#' information after having been called.
+#'
+#' @param local_env Passed to [withr::defer()] as `envir` argument
+#'
+#' @rdname mock
+#' @export
+local_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame(),
+                       local_env = eval_env) {
+
+  if (!requireNamespace("withr", quietly = TRUE)) {
+
+    stop(
+      "Local mocking requires the \"withr\" package.",
+      call. = FALSE
+    )
+  }
+
+  mfuns <- lapply(eval(substitute(alist(...))), eval, eval_env)
+  mfuns <- lapply(mfuns, mock_expr, eval_env)
+  mocks <- extract_mocks(mfuns, env = mock_env)
+
+  withr::defer(lapply(mocks, reset_mock), local_env)
+  lapply(mocks, set_mock)
+
+  invisible(mfuns)
+}
+
+#' @param expr Expression to be used as body of the function to be mocked.
+#' @param env Environment used as ancestor to the mock function environment.
+#'
+#' @rdname mock
+#' @export
+mock <- function(expr, env = parent.frame()) {
+  mock_quo(substitute(expr), env = env)
+}
+
+#' @param x Object of class `mock_fun` to be queried for call and argument
+#' information.
+#'
+#' @rdname mock
+#' @export
+mock_call <- function(x) {
+  stopifnot(is_mock_fun(x))
+  get("call", envir = attr(x, "env"))
+}
+
+#' @rdname mock
+#' @export
+mock_args <- function(x) {
+
+  stopifnot(is_mock_fun(x))
+
+  env <- attr(x, "env")
+  fun <- get("fun", envir = env)
+
+  called_args <- get("args", envir = env)
+  formal_args <- formals(fun)
+
+  defaults <- setdiff(names(formal_args), names(called_args))
+
+  formal_args[defaults] <- lapply(formal_args[defaults], eval,
+                                  environment(fun))
+  formal_args[names(called_args)] <- called_args
+
+  formal_args
+}
+
+is_mock_fun <- function(x) inherits(x, "mock_fun")
+
+mock_expr <- function(expr, env) {
+
+  if (is.function(expr) || is_mock_fun(expr)) {
+    return(expr)
+  }
+
+  mock_quo(expr, env)
+}
+
+mock_quo <- function(quo, env) {
+
+  capt <- quote({
+    call <<- match.call()
+    args <<- lapply(as.list(call)[-1L], eval, parent.frame())
+  })
+
+  if (is.function(quo)) {
+    par <- environment(quo)
+    quo <- body(quo)
+  } else {
+    par <- env
+  }
+
+  env <- list2env(list(call = NULL, args = NULL), parent = par)
+
+  if (is.language(quo) && identical(quo[[1L]], quote(`{`))) {
+    quo <- quo[-1L]
+  }
+
+  capt[seq_along(quo) + length(capt)] <- quo
+
+  structure(capt, env = env, class = "mock_fun")
 }
 
 pkg_env <- function() {
@@ -144,10 +276,10 @@ extract_mock <- function(fun_name, new_val, env) {
     )
   }
 
-  mock(fun_name, fun, new_val)
+  new_mock(fun_name, fun, new_val)
 }
 
-mock <- function(name, fun, new) {
+new_mock <- function(name, fun, new) {
 
   env <- environment(fun)
 
@@ -159,6 +291,14 @@ mock <- function(name, fun, new) {
     )
   }
 
+  if (inherits(new, "mock_fun")) {
+
+    mok_env <- attr(new, "env")
+    assign("fun", fun, envir = mok_env)
+
+    new <- new_function(formals(fun), new, mok_env)
+  }
+
   structure(
     list(
       name = name,
@@ -168,6 +308,23 @@ mock <- function(name, fun, new) {
     ),
     class = "mock"
   )
+}
+
+new_function <- function(formals = NULL, body = NULL, env = parent.frame()) {
+
+  res <- function(){}
+
+  if (!is.null(formals)) {
+    formals(res) <- formals
+  }
+
+  if (!is.null(body)) {
+    body(res) <- body
+  }
+
+  environment(res) <- env
+
+  res
 }
 
 do_assign <- function(name, val, env) {

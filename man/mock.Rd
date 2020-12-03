@@ -2,24 +2,52 @@
 % Please edit documentation in R/mock.R
 \name{with_mock}
 \alias{with_mock}
+\alias{local_mock}
+\alias{mock}
+\alias{mock_call}
+\alias{mock_args}
 \title{Mock functions in a package.}
 \usage{
 with_mock(..., mock_env = pkg_env(), eval_env = parent.frame())
+
+local_mock(
+  ...,
+  mock_env = pkg_env(),
+  eval_env = parent.frame(),
+  local_env = eval_env
+)
+
+mock(expr, env = parent.frame())
+
+mock_call(x)
+
+mock_args(x)
 }
 \arguments{
 \item{...}{Named parameters redefine mocked functions, unnamed parameters
-will be evaluated after mocking the functions}
+will be evaluated after mocking the functions.}
 
 \item{mock_env}{The environment in which to patch the functions,
-defaults to the top-level environment. A string is interpreted as
-package name.}
+defaults to the top-level environment. A string is interpreted as package
+name.}
 
 \item{eval_env}{Environment in which expressions passed as \code{...} are
 evaluated, defaults to \code{\link[=parent.frame]{parent.frame()}}.}
+
+\item{local_env}{Passed to \code{\link[withr:defer]{withr::defer()}} as \code{envir} argument}
+
+\item{expr}{Expression to be used as body of the function to be mocked.}
+
+\item{env}{Environment used as ancestor to the mock function environment.}
+
+\item{x}{Object of class \code{mock_fun} to be queried for call and argument
+information.}
 }
 \value{
 The result of the last unnamed argument passed as \code{...} (evaluated
-in the environment passed as \code{eval_env})
+in the environment passed as \code{eval_env}) in the case of \code{local_mock()} and
+a list of functions or \code{mock_fun} objects (invisibly) in the case of
+\code{local_mock()}.
 }
 \description{
 Mocking allows you to temporary replace the implementation of functions
@@ -59,10 +87,31 @@ with_mock(
 )
 
 with_mock(
+  `curl::curl` = '["mocked request"]',
+  jsonlite::fromJSON(url)
+)
+
+with_mock(
+  `curl::curl` = quote({
+    x <- "mocked request"
+    paste0('["', x, '"]')
+  }),
+  jsonlite::fromJSON(url)
+)
+
+with_mock(
   `curl::curl` = json,
   parse_and_simplify = function(txt, ...) gsub('\\\\[?\\\\"\\\\]?', "", txt),
   jsonlite::fromJSON(url),
   mock_env = "jsonlite"
 )
+
+mk <- mock("mocked request")
+dl <- function(url) curl::curl(url)
+
+with_mock(`curl::curl` = mk, dl(url))
+
+mock_call(mk)
+mock_args(mk)
 
 }

@@ -87,7 +87,7 @@ mockr::with_mock(
 )
 ```
 
-And with the current API of [`mockery::stub()`](https://rdrr.io/cran/mockery/man/stub.html) it is unclear how the `depth` argument should be chosen, as the function `gen()` does not contain a call to `met()`. And trying a range of sensible values does not yield the desired result.
+And with the current API of [`mockery::stub()`](https://rdrr.io/cran/mockery/man/stub.html) it is unclear how the `depth` argument should be chosen, as the function `gen()` does not contain a call to `met()`. Trying a range of sensible values does not yield the desired result.
 
 ```{r s3-mockery}
 for (depth in seq_len(3L)) {
@@ -96,3 +96,24 @@ for (depth in seq_len(3L)) {
 }
 ```
 
+Borrowing from `mockery`, `mockthat` also allows for creating mock objects (with class attribute `mock_fun`), which allow capture of the call for later examination.
+
+```{r, mock-fun}
+mk <- mock("mocked request")
+dl <- function(url) curl::curl(url)
+
+with_mock(`curl::curl` = mk, dl(url))
+
+mock_call(mk)
+mock_args(mk)
+```
+
+In addition to `with_mock()`, `mockthat` also offers a `local_mock()` function,
+again, mimicking the deprecated `testthat` function, which keeps the mocks in place for the life-time of the environment passed as `local_env` argument. Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as `...`.
+
+```{r local-mock}
+mk <- local_mock(`curl::curl` = "mocked request")
+dl(url)
+
+mock_args(mk, "url")
+```

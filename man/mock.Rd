@@ -119,6 +119,6 @@ mock_args(mk)
 mk <- local_mock(`curl::curl` = "mocked request")
 dl(url)
 
-mock_args(mk[[1L]], "url")
+mock_args(mk, "url")
 
 }

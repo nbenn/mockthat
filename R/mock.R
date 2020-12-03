@@ -77,7 +77,7 @@
 #' mk <- local_mock(`curl::curl` = "mocked request")
 #' dl(url)
 #'
-#' mock_args(mk[[1L]], "url")
+#' mock_args(mk, "url")
 #'
 #' @return The result of the last unnamed argument passed as `...` (evaluated
 #' in the environment passed as `eval_env`) in the case of `local_mock()` and
@@ -172,7 +172,13 @@ mock <- function(expr, env = parent.frame()) {
 #' @rdname mock
 #' @export
 mock_call <- function(x) {
+
+  if (is.list(x) && length(x) == 1L) {
+    x <- x[[1L]]
+  }
+
   stopifnot(is_mock_fun(x))
+
   get("call", envir = attr(x, "env"))
 }
 
@@ -181,6 +187,10 @@ mock_call <- function(x) {
 #' @rdname mock
 #' @export
 mock_args <- function(x, arg = NULL) {
+
+  if (is.list(x) && length(x) == 1L) {
+    x <- x[[1L]]
+  }
 
   stopifnot(is_mock_fun(x))
 

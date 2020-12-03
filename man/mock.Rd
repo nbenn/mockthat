@@ -21,7 +21,7 @@ mock(expr, env = parent.frame())
 
 mock_call(x)
 
-mock_args(x)
+mock_args(x, arg = NULL)
 }
 \arguments{
 \item{...}{Named parameters redefine mocked functions, unnamed parameters
@@ -42,6 +42,8 @@ evaluated, defaults to \code{\link[=parent.frame]{parent.frame()}}.}
 
 \item{x}{Object of class \code{mock_fun} to be queried for call and argument
 information.}
+
+\item{arg}{String-valued argument name to be retrieved.}
 }
 \value{
 The result of the last unnamed argument passed as \code{...} (evaluated
@@ -113,5 +115,10 @@ with_mock(`curl::curl` = mk, dl(url))
 
 mock_call(mk)
 mock_args(mk)
+
+mk <- local_mock(`curl::curl` = "mocked request")
+dl(url)
+
+mock_args(mk[[1L]], "url")
 
 }

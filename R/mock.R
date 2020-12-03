@@ -74,6 +74,11 @@
 #' mock_call(mk)
 #' mock_args(mk)
 #'
+#' mk <- local_mock(`curl::curl` = "mocked request")
+#' dl(url)
+#'
+#' mock_args(mk[[1L]], "url")
+#'
 #' @return The result of the last unnamed argument passed as `...` (evaluated
 #' in the environment passed as `eval_env`) in the case of `local_mock()` and
 #' a list of functions or `mock_fun` objects (invisibly) in the case of
@@ -171,9 +176,11 @@ mock_call <- function(x) {
   get("call", envir = attr(x, "env"))
 }
 
+#' @param arg String-valued argument name to be retrieved.
+#'
 #' @rdname mock
 #' @export
-mock_args <- function(x) {
+mock_args <- function(x, arg = NULL) {
 
   stopifnot(is_mock_fun(x))
 
@@ -183,11 +190,23 @@ mock_args <- function(x) {
   called_args <- get("args", envir = env)
   formal_args <- formals(fun)
 
+  if (is.character(arg)) {
+    stopifnot(length(arg) == 1L)
+    if (arg %in% names(called_args)) {
+      return(called_args[[arg]])
+    }
+  }
+
   defaults <- setdiff(names(formal_args), names(called_args))
 
   formal_args[defaults] <- lapply(formal_args[defaults], eval,
                                   environment(fun))
   formal_args[names(called_args)] <- called_args
+
+  if (is.character(arg)) {
+    stopifnot(arg %in% names(formal_args))
+    return(formal_args[[arg]])
+  }
 
   formal_args
 }

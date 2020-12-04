@@ -57,6 +57,15 @@ jobs:
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
+      - name: Install mocktest
+        run: |
+          files <- list.files(
+            file.path("inst", "testdata"), pattern = "\\.tar\\.gz",
+            full.names = TRUE
+          )
+          install.packages(files[length(files)], repos = NULL, type = "source")
+        shell: Rscript {0}
+
       - name: Session info
         run: |
           options(width = 100)

@@ -27,7 +27,8 @@ Suggests:
     curl,
     jsonlite,
     datasets,
-    withr
+    withr,
+    devtools
 Encoding: UTF-8
 Language: en-US
 LazyData: true

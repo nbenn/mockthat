@@ -1,16 +1,20 @@
 
+skip_if_not_installed("mocktest", "0.1.0")
+
+Sys.setenv(TESTTHAT_PKG = "mocktest")
+
 test_that("can change value of internal function", {
 
-  val <- test_non_exported()
+  val <- mocktest:::test_non_exported()
 
   res <- mockthat::with_mock(
     test_non_exported_nested = function() 5,
-    test_non_exported()
+    mocktest:::test_non_exported()
   )
 
   expect_equal(res, 5)
   expect_error(expect_equal(res, val), class = "expectation_failure")
-  expect_equal(test_non_exported(), val)
+  expect_equal(mocktest:::test_non_exported(), val)
 
   # and value is restored on error
   expect_error(
@@ -20,7 +24,7 @@ test_that("can change value of internal function", {
     )
   )
 
-  expect_equal(test_non_exported(), val)
+  expect_equal(mocktest:::test_non_exported(), val)
 })
 
 test_that("mocks can access local variables", {
@@ -29,7 +33,7 @@ test_that("mocks can access local variables", {
 
   mockthat::with_mock(
     test_non_exported_nested = function() x,
-    expect_equal(test_non_exported(), 5)
+    expect_equal(mocktest:::test_non_exported(), 5)
   )
 })
 

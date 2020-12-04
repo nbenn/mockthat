@@ -257,7 +257,7 @@ mock_quo <- function(quo, env) {
 
   if (is.language(quo) && identical(quo[[1L]], quote(`{`))) {
     quo <- quo[-1L]
-  } else if (is.language(quo)) {
+  } else {
     quo <- as.expression(quo)
   }
 

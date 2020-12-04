@@ -21,9 +21,9 @@ BugReports: https://github.com/nbenn/mockthat/issues
 Depends:
     R (>= 3.3.0)
 Imports:
-    testthat,
     utils
 Suggests:
+    testthat,
     curl,
     jsonlite,
     datasets,

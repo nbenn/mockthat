@@ -259,7 +259,11 @@ mock_quo <- function(quo, env) {
 
 pkg_env <- function() {
 
-  res <- testthat::testing_package()
+  if (requireNamespace("testthat", quietly = TRUE)) {
+    res <- testthat::testing_package()
+  } else {
+    res <- Sys.getenv("TESTTHAT_PKG")
+  }
 
   if (identical(res, "")) {
     topenv()

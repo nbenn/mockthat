@@ -1,3 +1,7 @@
+# mockthat 0.2.3
+
+* save multiple calls and associated args
+
 # mockthat 0.2.2
 
 * CRAN re-submission now with `mocktest` tests being dependent on

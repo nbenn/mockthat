@@ -67,7 +67,7 @@
 #' )
 #'
 #' mk <- mock("mocked request")
-#' dl <- function(url) curl::curl(url)
+#' dl <- function(x) curl::curl(x)
 #'
 #' with_mock(`curl::curl` = mk, dl(url))
 #'
@@ -108,15 +108,6 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 
   code <- dots[code_pos]
 
-  if (length(code) == 0) {
-
-    warning(
-      "Nothing to do with mocked functions. Please pass at least a single ",
-      "unnamed argument as `...`.",
-      call. = FALSE
-    )
-  }
-
   mfuns <- lapply(dots[!code_pos], eval, eval_env)
   mfuns <- lapply(mfuns, mock_expr, eval_env)
   mocks <- extract_mocks(mfuns, env = mock_env)
@@ -124,12 +115,15 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
   on.exit(lapply(mocks, reset_mock))
   lapply(mocks, set_mock)
 
-  for (expression in code[-length(code)]) {
-    eval(expression, eval_env)
-  }
+  if (length(code) > 0) {
 
-  # Isolate last item for visibility
-  eval(code[[length(code)]], eval_env)
+    for (expression in code[-length(code)]) {
+      eval(expression, eval_env)
+    }
+
+    # Isolate last item for visibility
+    eval(code[[length(code)]], eval_env)
+  }
 }
 
 #' A `local_*()` variant of `with_mock()` is available as `local_mock()`, in
@@ -175,36 +169,32 @@ mock <- function(expr, env = parent.frame()) {
 
 #' @param x Object of class `mock_fun` to be queried for call and argument
 #' information.
+#' @param call_no The call number of interest (in case the function was called
+#' multiple times).
 #'
 #' @rdname mock
 #' @export
-mock_call <- function(x) {
+mock_call <- function(x, call_no = mock_n_called(x)) {
 
-  if (is.list(x) && length(x) == 1L) {
-    x <- x[[1L]]
-  }
+  stopifnot(length(call_no) == 1L, is.numeric(call_no))
 
-  stopifnot(is_mock_fun(x))
-
-  get("call", envir = attr(x, "env"))
+  get("call", envir = attr(singleton_list_to_mocked_fun(x), "env"))[[call_no]]
 }
 
 #' @param arg String-valued argument name to be retrieved.
 #'
 #' @rdname mock
 #' @export
-mock_args <- function(x, arg = NULL) {
+mock_args <- function(x, arg = NULL, call_no = mock_n_called(x)) {
 
-  if (is.list(x) && length(x) == 1L) {
-    x <- x[[1L]]
-  }
+  stopifnot(length(call_no) == 1L, is.numeric(call_no))
 
-  stopifnot(is_mock_fun(x))
+  x <- singleton_list_to_mocked_fun(x)
 
   env <- attr(x, "env")
   fun <- get("fun", envir = env)
 
-  called_args <- get("args", envir = env)
+  called_args <- get("args", envir = env)[[call_no]]
   formal_args <- formals(fun)
 
   if (is.character(arg)) {
@@ -228,6 +218,23 @@ mock_args <- function(x, arg = NULL) {
   formal_args
 }
 
+#' @rdname mock
+#' @export
+mock_n_called <- function(x) {
+  length(get("call", envir = attr(singleton_list_to_mocked_fun(x), "env")))
+}
+
+singleton_list_to_mocked_fun <- function(x) {
+
+  if (is.list(x) && length(x) == 1L) {
+    x <- x[[1L]]
+  }
+
+  stopifnot(is_mock_fun(x))
+
+  x
+}
+
 is_mock_fun <- function(x) inherits(x, "mock_fun")
 
 mock_expr <- function(expr, env) {
@@ -242,8 +249,9 @@ mock_expr <- function(expr, env) {
 mock_quo <- function(quo, env) {
 
   capt <- quote({
-    call <<- match.call()
-    args <<- lapply(as.list(call)[-1L], eval, parent.frame())
+    mcal  <- match.call()
+    call <<- c(call, mcal)
+    args <<- c(args, list(lapply(as.list(mcal)[-1L], eval, parent.frame())))
   })
 
   if (is.function(quo)) {
@@ -253,7 +261,7 @@ mock_quo <- function(quo, env) {
     par <- env
   }
 
-  env <- list2env(list(call = NULL, args = NULL), parent = par)
+  env <- list2env(list(call = list(), args = list()), parent = par)
 
   if (is.language(quo) && identical(quo[[1L]], quote(`{`))) {
     quo <- quo[-1L]

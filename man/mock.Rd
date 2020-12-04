@@ -6,6 +6,7 @@
 \alias{mock}
 \alias{mock_call}
 \alias{mock_args}
+\alias{mock_n_called}
 \title{Mock functions in a package.}
 \usage{
 with_mock(..., mock_env = pkg_env(), eval_env = parent.frame())
@@ -19,9 +20,11 @@ local_mock(
 
 mock(expr, env = parent.frame())
 
-mock_call(x)
+mock_call(x, call_no = mock_n_called(x))
 
-mock_args(x, arg = NULL)
+mock_args(x, arg = NULL, call_no = mock_n_called(x))
+
+mock_n_called(x)
 }
 \arguments{
 \item{...}{Named parameters redefine mocked functions, unnamed parameters
@@ -42,6 +45,9 @@ evaluated, defaults to \code{\link[=parent.frame]{parent.frame()}}.}
 
 \item{x}{Object of class \code{mock_fun} to be queried for call and argument
 information.}
+
+\item{call_no}{The call number of interest (in case the function was called
+multiple times).}
 
 \item{arg}{String-valued argument name to be retrieved.}
 }
@@ -109,7 +115,7 @@ with_mock(
 )
 
 mk <- mock("mocked request")
-dl <- function(url) curl::curl(url)
+dl <- function(x) curl::curl(x)
 
 with_mock(`curl::curl` = mk, dl(url))
 

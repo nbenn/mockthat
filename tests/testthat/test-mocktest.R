@@ -121,7 +121,7 @@ test_that("can't mock non-function", {
 
 test_that("empty or no-op mock", {
 
-  warn <- paste("Not mocking anything. Please use named parameters to specify",
+  warn <- paste("Not mocking anything. Please use named arguments to specify",
                 "the functions you want to mock.")
 
   expect_warning(expect_null(mockthat::with_mock()), warn, fixed = TRUE)

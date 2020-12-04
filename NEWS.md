@@ -1,3 +1,16 @@
+# mockthat 0.2.2
+
+* CRAN re-submission now with `mocktest` tests being dependent on
+  availability of `mocktest`
+
+# mockthat 0.2.1
+
+* add `arg` argument to `mock_args()`
+
+# mockthat 0.2.0
+
+* add `local_mock()` and arg/call caching
+
 # mockthat 0.1.1
 
 * Sumbitted to CRAN

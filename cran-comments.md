@@ -9,7 +9,7 @@
 
 0 errors | 0 warnings | 0 notes
 
-* This is a new release.
+* This is a re-submission of a new release.
 
 * Function mocking, intended to be run within the context of unit testing
   using `testthat` is powered by `utils::assignInNamespace()`. While the

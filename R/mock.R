@@ -94,7 +94,7 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
   if (all(mock_qual_names == "")) {
 
     warning(
-      "Not mocking anything. Please use named parameters to specify the ",
+      "Not mocking anything. Please use named arguments to specify the ",
       "functions you want to mock.",
       call. = FALSE
     )
@@ -108,6 +108,15 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 
   code <- dots[code_pos]
 
+  if (length(code) == 0) {
+
+    warning(
+      "Nothing to do with mocked functions. Please pass at least a single ",
+      "unnamed argument as `...`.",
+      call. = FALSE
+    )
+  }
+
   mfuns <- lapply(dots[!code_pos], eval, eval_env)
   mfuns <- lapply(mfuns, mock_expr, eval_env)
   mocks <- extract_mocks(mfuns, env = mock_env)
@@ -115,14 +124,12 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
   on.exit(lapply(mocks, reset_mock))
   lapply(mocks, set_mock)
 
-  # Evaluate the code
-  if (length(code) > 0) {
-    for (expression in code[-length(code)]) {
-      eval(expression, eval_env)
-    }
-    # Isolate last item for visibility
-    eval(code[[length(code)]], eval_env)
+  for (expression in code[-length(code)]) {
+    eval(expression, eval_env)
   }
+
+  # Isolate last item for visibility
+  eval(code[[length(code)]], eval_env)
 }
 
 #' A `local_*()` variant of `with_mock()` is available as `local_mock()`, in
@@ -250,6 +257,8 @@ mock_quo <- function(quo, env) {
 
   if (is.language(quo) && identical(quo[[1L]], quote(`{`))) {
     quo <- quo[-1L]
+  } else if (is.language(quo)) {
+    quo <- as.expression(quo)
   }
 
   capt[seq_along(quo) + length(capt)] <- quo

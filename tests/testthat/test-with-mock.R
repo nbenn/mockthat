@@ -79,3 +79,15 @@ test_that("can create mock from return value", {
 
   expect_identical(res, "mocked request")
 })
+
+test_that("visibility propagates", {
+
+  expect_invisible(
+    res <- with_mock(
+      `curl::curl_fetch_memory` = quote(invisible(NULL)),
+      curl::curl_fetch_memory(url)
+    )
+  )
+
+  expect_null(res)
+})

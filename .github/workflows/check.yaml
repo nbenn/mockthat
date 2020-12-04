@@ -75,8 +75,10 @@ jobs:
 
       - name: Install mocktest
         run: |
-          files <- list.files("testdata", pattern = "\\.tar\\.gz",
-                              full.names = TRUE)
+          files <- list.files(
+            file.path("inst", "testdata"), pattern = "\\.tar\\.gz",
+            full.names = TRUE
+          )
           install.packages(files[length(files)], repos = NULL, type = "source")
         shell: Rscript {0}
 

@@ -13,7 +13,7 @@
 
 # mockthat 0.1.1
 
-* Sumbitted to CRAN
+* Submitted to CRAN
 
 # mockthat 0.1.0
 

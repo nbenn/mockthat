@@ -1,3 +1,9 @@
+# mockthat 0.2.4
+
+* CRAN re-submission now with minor fix of hard-coding base pkg names as
+  returned by `tools:::.get_standard_package_names()$base` instead of calling
+  `utils::installed.packages()`.
+
 # mockthat 0.2.3
 
 * save multiple calls and associated args

@@ -398,5 +398,7 @@ reset_mock <- function(mock) {
 }
 
 is_base_pkg <- function(x) {
-  x %in% rownames(utils::installed.packages(priority = "base"))
+  x %in% c("base", "tools", "utils", "grDevices", "graphics",
+           "stats", "datasets", "methods", "grid", "splines", "stats4",
+           "tcltk", "compiler", "parallel")
 }

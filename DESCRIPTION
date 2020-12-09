@@ -1,6 +1,6 @@
 Package: mockthat
 Title: Function Mocking for Unit Testing in R
-Version: 0.2.4
+Version: 0.2.5
 Authors@R:
     person(given = "Nicolas",
            family = "Bennett",

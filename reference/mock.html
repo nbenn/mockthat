@@ -46,10 +46,12 @@ that are slow, have unintended side effects or access resources that may
 not be available when testing.
 Up until recently, such capability was offered via testthat::with_mock(),
 but with release of version 3.0.0 and introduction of edition 3, this was
-deprecated from testthat, leaving it to third party packages to replace this
-feature. This mocking implementation is powered by
-utils::assignInNamespace() and therefore, caveats outlined in the
-corresponding documentation apply here too." />
+deprecated from 'testthat', leaving it to third party packages to replace
+this feature. Powered by utils::assignInNamespace(), this mocking
+implementation can be used to stub out both exported and non-exported
+functions from a package, as well as functions explicitly imported from
+other packages using either importFrom directives or namespaced function
+calls using ::." />
 
 
 
@@ -132,10 +134,12 @@ that are slow, have unintended side effects or access resources that may
 not be available when testing.</p>
 <p>Up until recently, such capability was offered via <code><a href='https://testthat.r-lib.org/reference/with_mock.html'>testthat::with_mock()</a></code>,
 but with release of version 3.0.0 and introduction of edition 3, this was
-deprecated from testthat, leaving it to third party packages to replace this
-feature. This mocking implementation is powered by
-<code><a href='https://rdrr.io/r/utils/getFromNamespace.html'>utils::assignInNamespace()</a></code> and therefore, caveats outlined in the
-corresponding documentation apply here too.</p>
+deprecated from 'testthat', leaving it to third party packages to replace
+this feature. Powered by <code><a href='https://rdrr.io/r/utils/getFromNamespace.html'>utils::assignInNamespace()</a></code>, this mocking
+implementation can be used to stub out both exported and non-exported
+functions from a package, as well as functions explicitly imported from
+other packages using either <code>importFrom</code> directives or namespaced function
+calls using <code><a href='https://rdrr.io/r/base/ns-dblcolon.html'>::</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>with_mock</span><span class='op'>(</span><span class='va'>...</span>, mock_env <span class='op'>=</span> <span class='fu'>pkg_env</span><span class='op'>(</span><span class='op'>)</span>, eval_env <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sys.parent.html'>parent.frame</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
@@ -151,7 +155,9 @@ corresponding documentation apply here too.</p>
 
 <span class='fu'>mock_call</span><span class='op'>(</span><span class='va'>x</span>, call_no <span class='op'>=</span> <span class='fu'>mock_n_called</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='fu'>mock_args</span><span class='op'>(</span><span class='va'>x</span>, arg <span class='op'>=</span> <span class='cn'>NULL</span>, call_no <span class='op'>=</span> <span class='fu'>mock_n_called</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>mock_args</span><span class='op'>(</span><span class='va'>x</span>, call_no <span class='op'>=</span> <span class='fu'>mock_n_called</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'>mock_arg</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>arg</span>, call_no <span class='op'>=</span> <span class='fu'>mock_n_called</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='fu'>mock_n_called</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
 
@@ -204,10 +210,60 @@ multiple times).</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The result of the last unnamed argument passed as <code>...</code> (evaluated
-in the environment passed as <code>eval_env</code>) in the case of <code>local_mock()</code> and
-a list of functions or <code>mock_fun</code> objects (invisibly) in the case of
-<code>local_mock()</code>.</p>
+    
+<ul>
+<li><p><code>local_mock()</code>: the result of the last unnamed argument passed as <code>...</code>
+(evaluated in the environment passed as <code>eval_env</code>)</p></li>
+<li><p><code>local_mock()</code>: a list of functions or <code>mock_fun</code> objects (invisibly)</p></li>
+<li><p><code>mock()</code>: a <code>mock_fun</code> object</p></li>
+<li><p><code>mock_call()</code>: a call (created by <code><a href='https://rdrr.io/r/base/match.call.html'>base::match.call()</a></code>)</p></li>
+<li><p><code>mock_arg()</code>: the object used as specified function argument</p></li>
+<li><p><code>mock_args()</code>: a list of all function arguments used to create a call to
+the <code>mock_fun</code> object in question</p></li>
+<li><p><code>mock_n_called()</code>: a scalar integer</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Borrowing the API from the now-deprecated <code><a href='https://testthat.r-lib.org/reference/with_mock.html'>testthat::with_mock()</a></code>, named
+arguments passed as <code>...</code> are used to define functions to be mocked, where
+names specify the target functions and the arguments themselves are used as
+replacement functions. Unnamed arguments passed as <code>...</code> will be evaluated
+in the environment specified as <code>eval_env</code> using the mocked functions. On
+exit of <code>with_mock()</code>, the mocked functions are reverted to their original
+state.</p>
+<p>Replacement functions can either be specified as complete functions, or as
+either quoted expressions, subsequently used as function body or objects
+used as return values. If functions are created from return values or
+complete function bodies, they inherit the signatures from the respective
+functions they are used to mock, alongside the ability to keep track of
+how they are subsequently called. A constructor for such mock-objects is
+available as <code>mock()</code>, which quotes the expression passed as <code>expr</code>.</p>
+<p>If mocking is desirable for multiple separate calls to the function being
+tested, <code>local_mock()</code> is available, which holds onto the mocked state for
+the lifetime of the environment passed as <code>local_env</code> using
+<code><a href='https://withr.r-lib.org/reference/defer.html'>withr::defer()</a></code>. Unlike <code>with_mock()</code>, which returns the result of
+evaluating the last unnamed argument passed as <code>...</code>, <code>local_mock()</code>
+(invisibly) returns the functions used for mocking, which if not fully
+specified as functions, will be mock-objects described in the previous
+paragraph.</p>
+<p>Calls to mock-objects either constructed using <code>mock()</code> or returned by
+<code>local_mock()</code> can keep track of how they were called and functions
+<code>mock_call()</code>, <code>mock_args()</code> and <code>mock_n_called()</code> can be used to retrieve
+related information:</p><ul>
+<li><p><code>mock_call()</code>: retrieves the call captured by <code><a href='https://rdrr.io/r/base/match.call.html'>base::match.call()</a></code></p></li>
+<li><p><code>mock_arg()</code>: retrieves the value of the argument with name passed as
+string-valued argument <code>arg</code></p></li>
+<li><p><code>mock_args()</code>: retrieves a list of all arguments used for calling the
+mocked function</p></li>
+<li><p><code>mock_n_called()</code>: counts the number of times the mocked function was
+called</p></li>
+</ul>
+
+<p>Calls to mock objects are indexed chronologically and both <code>mock_call()</code>
+and <code>mock_args()</code> provide an argument <code>call_no</code> which can be used to specify
+which call is of interest, with the default being the most recent (or last)
+one.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
@@ -279,7 +335,7 @@ a list of functions or <code>mock_fun</code> objects (invisibly) in the case of
 #&gt; opened      "closed"                            
 #&gt; can read    "yes"                               
 #&gt; can write   "no"                                </div><div class='input'>
-<span class='fu'>mock_args</span><span class='op'>(</span><span class='va'>mk</span>, <span class='st'>"url"</span><span class='op'>)</span>
+<span class='fu'>mock_arg</span><span class='op'>(</span><span class='va'>mk</span>, <span class='st'>"url"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='error'>Error in get("args", envir = env)[[call_no]]: attempt to select less than one element in integerOneIndex</span></div><div class='input'>
 </div></pre>
   </div>

@@ -2,6 +2,7 @@
 
 export(local_mock)
 export(mock)
+export(mock_arg)
 export(mock_args)
 export(mock_call)
 export(mock_n_called)

@@ -9,10 +9,56 @@
 #'
 #' Up until recently, such capability was offered via [testthat::with_mock()],
 #' but with release of version 3.0.0 and introduction of edition 3, this was
-#' deprecated from testthat, leaving it to third party packages to replace this
-#' feature. This mocking implementation is powered by
-#' [utils::assignInNamespace()] and therefore, caveats outlined in the
-#' corresponding documentation apply here too.
+#' deprecated from 'testthat', leaving it to third party packages to replace
+#' this feature. Powered by [utils::assignInNamespace()], this mocking
+#' implementation can be used to stub out both exported and non-exported
+#' functions from a package, as well as functions explicitly imported from
+#' other packages using either `importFrom` directives or namespaced function
+#' calls using `::`.
+#'
+#' @details
+#' Borrowing the API from the now-deprecated [testthat::with_mock()], named
+#' arguments passed as `...` are used to define functions to be mocked, where
+#' names specify the target functions and the arguments themselves are used as
+#' replacement functions. Unnamed arguments passed as `...` will be evaluated
+#' in the environment specified as `eval_env` using the mocked functions. On
+#' exit of `with_mock()`, the mocked functions are reverted to their original
+#' state.
+#'
+#' Replacement functions can either be specified as complete functions, or as
+#' either quoted expressions, subsequently used as function body or objects
+#' used as return values. If functions are created from return values or
+#' complete function bodies, they inherit the signatures from the respective
+#' functions they are used to mock, alongside the ability to keep track of
+#' how they are subsequently called. A constructor for such mock-objects is
+#' available as `mock()`, which quotes the expression passed as `expr`.
+#'
+#' If mocking is desirable for multiple separate calls to the function being
+#' tested, `local_mock()` is available, which holds onto the mocked state for
+#' the lifetime of the environment passed as `local_env` using
+#' [withr::defer()]. Unlike `with_mock()`, which returns the result of
+#' evaluating the last unnamed argument passed as `...`, `local_mock()`
+#' (invisibly) returns the functions used for mocking, which if not fully
+#' specified as functions, will be mock-objects described in the previous
+#' paragraph.
+#'
+#' Calls to mock-objects either constructed using `mock()` or returned by
+#' `local_mock()` can keep track of how they were called and functions
+#' `mock_call()`, `mock_args()` and `mock_n_called()` can be used to retrieve
+#' related information:
+#'
+#' * `mock_call()`: retrieves the call captured by [base::match.call()]
+#' * `mock_arg()`: retrieves the value of the argument with name passed as
+#'   string-valued argument `arg`
+#' * `mock_args()`: retrieves a list of all arguments used for calling the
+#'   mocked function
+#' * `mock_n_called()`: counts the number of times the mocked function was
+#'   called
+#'
+#' Calls to mock objects are indexed chronologically and both `mock_call()`
+#' and `mock_args()` provide an argument `call_no` which can be used to specify
+#' which call is of interest, with the default being the most recent (or last)
+#' one.
 #'
 #' @param ... Named parameters redefine mocked functions, unnamed parameters
 #' will be evaluated after mocking the functions.
@@ -77,12 +123,18 @@
 #' mk <- local_mock(`curl::curl` = "mocked request")
 #' dl(url)
 #'
-#' mock_args(mk, "url")
+#' mock_arg(mk, "url")
 #'
-#' @return The result of the last unnamed argument passed as `...` (evaluated
-#' in the environment passed as `eval_env`) in the case of `local_mock()` and
-#' a list of functions or `mock_fun` objects (invisibly) in the case of
-#' `local_mock()`.
+#' @return
+#' * `local_mock()`: the result of the last unnamed argument passed as `...`
+#'   (evaluated in the environment passed as `eval_env`)
+#' * `local_mock()`: a list of functions or `mock_fun` objects (invisibly)
+#' * `mock()`: a `mock_fun` object
+#' * `mock_call()`: a call (created by [base::match.call()])
+#' * `mock_arg()`: the object used as specified function argument
+#' * `mock_args()`: a list of all function arguments used to create a call to
+#'   the `mock_fun` object in question
+#' * `mock_n_called()`: a scalar integer
 #'
 #' @rdname mock
 #' @export
@@ -181,11 +233,22 @@ mock_call <- function(x, call_no = mock_n_called(x)) {
   get("call", envir = attr(singleton_list_to_mocked_fun(x), "env"))[[call_no]]
 }
 
+#' @rdname mock
+#' @export
+mock_args <- function(x, call_no = mock_n_called(x)) {
+  mock_arg_retriever(x, NULL, call_no)
+}
+
 #' @param arg String-valued argument name to be retrieved.
 #'
 #' @rdname mock
 #' @export
-mock_args <- function(x, arg = NULL, call_no = mock_n_called(x)) {
+mock_arg <- function(x, arg, call_no = mock_n_called(x)) {
+  stopifnot(is.character(arg), length(arg) == 1L)
+  mock_arg_retriever(x, arg, call_no)
+}
+
+mock_arg_retriever <- function(x, arg, call_no) {
 
   stopifnot(length(call_no) == 1L, is.numeric(call_no))
 

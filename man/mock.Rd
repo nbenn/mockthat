@@ -6,6 +6,7 @@
 \alias{mock}
 \alias{mock_call}
 \alias{mock_args}
+\alias{mock_arg}
 \alias{mock_n_called}
 \title{Mock functions in a package.}
 \usage{
@@ -22,7 +23,9 @@ mock(expr, env = parent.frame())
 
 mock_call(x, call_no = mock_n_called(x))
 
-mock_args(x, arg = NULL, call_no = mock_n_called(x))
+mock_args(x, call_no = mock_n_called(x))
+
+mock_arg(x, arg, call_no = mock_n_called(x))
 
 mock_n_called(x)
 }
@@ -52,10 +55,17 @@ multiple times).}
 \item{arg}{String-valued argument name to be retrieved.}
 }
 \value{
-The result of the last unnamed argument passed as \code{...} (evaluated
-in the environment passed as \code{eval_env}) in the case of \code{local_mock()} and
-a list of functions or \code{mock_fun} objects (invisibly) in the case of
-\code{local_mock()}.
+\itemize{
+\item \code{local_mock()}: the result of the last unnamed argument passed as \code{...}
+(evaluated in the environment passed as \code{eval_env})
+\item \code{local_mock()}: a list of functions or \code{mock_fun} objects (invisibly)
+\item \code{mock()}: a \code{mock_fun} object
+\item \code{mock_call()}: a call (created by \code{\link[base:match.call]{base::match.call()}})
+\item \code{mock_arg()}: the object used as specified function argument
+\item \code{mock_args()}: a list of all function arguments used to create a call to
+the \code{mock_fun} object in question
+\item \code{mock_n_called()}: a scalar integer
+}
 }
 \description{
 Mocking allows you to temporary replace the implementation of functions
@@ -65,10 +75,57 @@ not be available when testing.
 
 Up until recently, such capability was offered via \code{\link[testthat:with_mock]{testthat::with_mock()}},
 but with release of version 3.0.0 and introduction of edition 3, this was
-deprecated from testthat, leaving it to third party packages to replace this
-feature. This mocking implementation is powered by
-\code{\link[utils:getFromNamespace]{utils::assignInNamespace()}} and therefore, caveats outlined in the
-corresponding documentation apply here too.
+deprecated from 'testthat', leaving it to third party packages to replace
+this feature. Powered by \code{\link[utils:getFromNamespace]{utils::assignInNamespace()}}, this mocking
+implementation can be used to stub out both exported and non-exported
+functions from a package, as well as functions explicitly imported from
+other packages using either \code{importFrom} directives or namespaced function
+calls using \code{::}.
+}
+\details{
+Borrowing the API from the now-deprecated \code{\link[testthat:with_mock]{testthat::with_mock()}}, named
+arguments passed as \code{...} are used to define functions to be mocked, where
+names specify the target functions and the arguments themselves are used as
+replacement functions. Unnamed arguments passed as \code{...} will be evaluated
+in the environment specified as \code{eval_env} using the mocked functions. On
+exit of \code{with_mock()}, the mocked functions are reverted to their original
+state.
+
+Replacement functions can either be specified as complete functions, or as
+either quoted expressions, subsequently used as function body or objects
+used as return values. If functions are created from return values or
+complete function bodies, they inherit the signatures from the respective
+functions they are used to mock, alongside the ability to keep track of
+how they are subsequently called. A constructor for such mock-objects is
+available as \code{mock()}, which quotes the expression passed as \code{expr}.
+
+If mocking is desirable for multiple separate calls to the function being
+tested, \code{local_mock()} is available, which holds onto the mocked state for
+the lifetime of the environment passed as \code{local_env} using
+\code{\link[withr:defer]{withr::defer()}}. Unlike \code{with_mock()}, which returns the result of
+evaluating the last unnamed argument passed as \code{...}, \code{local_mock()}
+(invisibly) returns the functions used for mocking, which if not fully
+specified as functions, will be mock-objects described in the previous
+paragraph.
+
+Calls to mock-objects either constructed using \code{mock()} or returned by
+\code{local_mock()} can keep track of how they were called and functions
+\code{mock_call()}, \code{mock_args()} and \code{mock_n_called()} can be used to retrieve
+related information:
+\itemize{
+\item \code{mock_call()}: retrieves the call captured by \code{\link[base:match.call]{base::match.call()}}
+\item \code{mock_arg()}: retrieves the value of the argument with name passed as
+string-valued argument \code{arg}
+\item \code{mock_args()}: retrieves a list of all arguments used for calling the
+mocked function
+\item \code{mock_n_called()}: counts the number of times the mocked function was
+called
+}
+
+Calls to mock objects are indexed chronologically and both \code{mock_call()}
+and \code{mock_args()} provide an argument \code{call_no} which can be used to specify
+which call is of interest, with the default being the most recent (or last)
+one.
 }
 \examples{
 
@@ -125,6 +182,6 @@ mock_args(mk)
 mk <- local_mock(`curl::curl` = "mocked request")
 dl(url)
 
-mock_args(mk, "url")
+mock_arg(mk, "url")
 
 }

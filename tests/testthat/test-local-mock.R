@@ -13,7 +13,7 @@ test_that("local mock works", {
   mk <- local_mock(`curl::curl` = "mocked request")
 
   expect_identical(dl(url), "mocked request")
-  expect_identical(mock_args(mk, "url"), url)
+  expect_identical(mock_arg(mk, "url"), url)
   expect_false(is_ns_env(curl::curl))
 })
 

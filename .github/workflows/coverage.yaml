@@ -37,9 +37,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages(c("remotes"))
           remotes::install_deps(dependencies = TRUE)
-          remotes::install_cran("covr")
+          remotes::install_cran(c("covr", "devtools"))
         shell: Rscript {0}
 
       - name: Install mocktest

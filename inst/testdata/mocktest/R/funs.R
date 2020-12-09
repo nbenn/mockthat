@@ -34,9 +34,17 @@ test_exported <- function() {
 #' @export
 test_base <- function(x, y) isTRUE(base::all.equal(x, y))
 
+show_struct <- utils::str
+
 #' @importFrom utils head
-test_utils <- function(x, n = 2L) {
-  rbind(head(x, n = n), utils::tail(x, n = n))
+test_utils <- function(x, how = c("struct", "head", "tail")) {
+
+  switch(
+    match.arg(how),
+    struct = show_struct(x),
+    head = head(x),
+    tail = utils::tail(x)
+  )
 }
 
 #' @rdname test_funs
@@ -52,23 +60,25 @@ test_s3.default <- function(x) 5L
 curl_dl_mem <- curl::curl_fetch_memory
 
 #' @importFrom curl curl_fetch_disk
-test_depends <- function(url, how = c("mem", "disk")) {
+test_depends <- function(url, how = c("mem", "disk", "stream")) {
 
   switch(
-    how,
+    match.arg(how),
     mem = curl_dl_mem(url),
-    disk = curl_fetch_disk(url)
+    disk = curl_fetch_disk(url),
+    stream = curl::curl_fetch_stream(url)
   )
 }
 
-jsonlite_flatten <- jsonlite::flatten
+jsonlite_pretty <- jsonlite::prettify
 
-#' @importFrom jsonlite unbox
-test_imports <- function(x, what = c("flat", "ubox")) {
+#' @importFrom jsonlite minify
+test_imports <- function(x, what = c("pretty", "mini", "conv")) {
 
   switch(
-    what,
-    flat = jsonlite_flatten(url),
-    ubox = unbox(url)
+    match.arg(what),
+    pretty = jsonlite_pretty(x),
+    mini = minify(x),
+    conv = jsonlite::fromJSON(x)
   )
 }

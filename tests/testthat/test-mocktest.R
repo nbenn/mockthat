@@ -77,32 +77,46 @@ test_that("can't mock base functions", {
     ),
     "Can't mock functions in base package"
   )
+})
+
+test_that("can sometimes mock utils functions", {
+
+  res <- mockthat::with_mock(
+    show_struct = "bar",
+    test_utils("foo", "struct")
+  )
+
+  expect_identical(res, "bar")
 
   expect_error(
-    mockthat::with_mock(
-      head = function(...) tail(...), test_utils(mtcars)
-    ),
+    mockthat::with_mock(str = "bar", test_utils("foo", "struct")),
     "Can't mock functions in utils package"
   )
 
   expect_error(
-    mockthat::with_mock(
-      `utils::head` = function(...) utils::tail(...), test_utils(mtcars)
-    ),
+    mockthat::with_mock(`utils::str` = "bar", test_utils("foo", "struct")),
+    "Can't mock functions in utils package"
+  )
+
+  res <- mockthat::with_mock(
+    head = "bar",
+    test_utils("foo", "head")
+  )
+
+  expect_identical(res, "bar")
+
+  expect_error(
+    mockthat::with_mock(`utils::head` = "bar", test_utils("foo", "head")),
     "Can't mock functions in utils package"
   )
 
   expect_error(
-    mockthat::with_mock(
-      tail = function(...) head(...), test_utils(mtcars)
-    ),
+    mockthat::with_mock(tail = "bar", test_utils("foo", "tail")),
     "Can't mock functions in utils package"
   )
 
   expect_error(
-    mockthat::with_mock(
-      `utils::tail` = function(...) utils::head(...), test_utils(mtcars)
-    ),
+    mockthat::with_mock(`utils::tail` = "bar", test_utils("foo", "tail")),
     "Can't mock functions in utils package"
   )
 })
@@ -206,4 +220,63 @@ test_that(
   )
 
   expect_equal(x, 3)
+})
+
+test_that("mock within S3 dispatch", {
+
+  x <- structure(1L, class = "test_cls")
+
+  expect_identical(test_s3(x), 10L)
+  expect_identical(mockthat::with_mock(test_non_exported = 5L, test_s3(x)), 5L)
+
+  expect_identical(test_s3(1L), 5L)
+  expect_identical(mockthat::with_mock(test_s3.default = 2L, test_s3(1L)), 2L)
+})
+
+test_that("mock depends", {
+
+  res <- mockthat::with_mock(
+    curl_dl_mem = "bar",
+    test_depends("foo", "mem")
+  )
+
+  expect_identical(res, "bar")
+
+  res <- mockthat::with_mock(
+    curl_fetch_disk = "bar",
+    test_depends("foo", "disk")
+  )
+
+  expect_identical(res, "bar")
+
+  res <- mockthat::with_mock(
+    `curl::curl_fetch_stream` = "bar",
+    test_depends("foo", "stream")
+  )
+
+  expect_identical(res, "bar")
+})
+
+test_that("mock imports", {
+
+  res <- mockthat::with_mock(
+    jsonlite_pretty = "bar",
+    test_imports("foo", "pretty")
+  )
+
+  expect_identical(res, "bar")
+
+  res <- mockthat::with_mock(
+    minify = "bar",
+    test_imports("foo", "mini")
+  )
+
+  expect_identical(res, "bar")
+
+  res <- mockthat::with_mock(
+    `jsonlite::fromJSON` = "bar",
+    test_imports("foo", "conv")
+  )
+
+  expect_identical(res, "bar")
 })

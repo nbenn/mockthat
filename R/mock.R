@@ -305,6 +305,12 @@ extract_mocks <- function(funs, env) {
 
 extract_mock <- function(fun_name, new_val, env) {
 
+  fun_exists <- function(name, envir) {
+    is.environment(envir) &&
+      exists(name, envir = envir, mode = "function", inherits = FALSE)
+  }
+
+
   rgx <- "^(?:(.*[^:])::(?:[:]?))?(.*)$"
 
   pkg_name <- gsub(rgx, "\\1", fun_name)
@@ -326,12 +332,32 @@ extract_mock <- function(fun_name, new_val, env) {
     )
   }
 
-  new_mock(fun_name, fun, new_val)
+  if (fun_exists(fun_name, env) && !fun_exists(fun_name, environment(fun))) {
+    new_mock(fun_name, fun, new_val, env)
+  } else if (fun_exists(fun_name, imports_env(env))) {
+    new_mock(fun_name, fun, new_val, imports_env(env))
+  } else {
+    new_mock(fun_name, fun, new_val, environment(fun))
+  }
 }
 
-new_mock <- function(name, fun, new) {
+imports_env <- function(x) {
 
-  env <- environment(fun)
+  if (!isNamespace(x)) {
+    return(NULL)
+  }
+
+  res <- parent.env(x)
+  nme <- paste("imports", environmentName(x), sep =":")
+
+  if (identical(attr(res, "name"), nme)) {
+    return(res)
+  }
+
+  NULL
+}
+
+new_mock <- function(name, fun, new, env) {
 
   if (isNamespace(env) && is_base_pkg(getNamespaceName(env))) {
 

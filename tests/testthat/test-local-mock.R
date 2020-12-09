@@ -20,3 +20,16 @@ test_that("local mock works", {
 test_that("local mock is restored", {
   expect_true(is_ns_env(curl::curl))
 })
+
+test_that("local mock env", {
+
+  dl <- function(url) curl::curl(url)
+
+  local({
+
+    mk <- local_mock(`curl::curl` = "mocked request")
+
+    expect_identical(dl(url), "mocked request")
+    expect_identical(mock_arg(mk, "url"), url)
+  })
+})

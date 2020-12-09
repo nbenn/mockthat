@@ -120,10 +120,10 @@
 #' mock_call(mk)
 #' mock_args(mk)
 #'
-#' mk <- local_mock(`curl::curl` = "mocked request")
-#' dl(url)
-#'
-#' mock_arg(mk, "url")
+#' local({
+#'   mk <- local_mock(`curl::curl` = "mocked request")
+#'   list(dl(url), mock_arg(mk, "url"))
+#' })
 #'
 #' @return
 #' * `local_mock()`: the result of the last unnamed argument passed as `...`

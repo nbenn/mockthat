@@ -1,5 +1,4 @@
 ^LICENSE\.md$
-^inst/testdata/mocktest/.*$
 ^.github$
 ^README\.(Rmd|html)$
 ^_pkgdown\.yml$

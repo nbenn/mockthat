@@ -1,20 +1,24 @@
 
-skip_if_not_installed("mocktest", "0.1.0")
+pkg_dir <- system.file("testdata", "mocktest", package = "mockthat")
+pkg_nme <- pkgload::pkg_name(pkg_dir)
 
-Sys.setenv(TESTTHAT_PKG = "mocktest")
+pkgload::load_all(pkg_dir, attach_testthat = FALSE)
+
+withr::defer(pkgload::unload(pkg_nme))
+withr::local_envvar(TESTTHAT_PKG = pkg_nme)
 
 test_that("can change value of internal function", {
 
-  val <- mocktest:::test_non_exported()
+  val <- test_non_exported()
 
   res <- mockthat::with_mock(
     test_non_exported_nested = function() 5,
-    mocktest:::test_non_exported()
+    test_non_exported()
   )
 
   expect_equal(res, 5)
   expect_error(expect_equal(res, val), class = "expectation_failure")
-  expect_equal(mocktest:::test_non_exported(), val)
+  expect_equal(test_non_exported(), val)
 
   # and value is restored on error
   expect_error(
@@ -24,7 +28,7 @@ test_that("can change value of internal function", {
     )
   )
 
-  expect_equal(mocktest:::test_non_exported(), val)
+  expect_equal(test_non_exported(), val)
 })
 
 test_that("mocks can access local variables", {
@@ -33,7 +37,7 @@ test_that("mocks can access local variables", {
 
   mockthat::with_mock(
     test_non_exported_nested = function() x,
-    expect_equal(mocktest:::test_non_exported(), 5)
+    expect_equal(test_non_exported(), 5)
   )
 })
 
@@ -107,7 +111,7 @@ test_that("can't mock non-existing", {
 
   expect_error(
     mockthat::with_mock(..bogus.. = identity, TRUE),
-    "Function `\\.\\.bogus\\.\\.` not found in environment mocktest"
+    paste("Function `\\.\\.bogus\\.\\.` not found in environment", pkg_nme)
   )
 })
 
@@ -115,7 +119,7 @@ test_that("can't mock non-function", {
 
   expect_error(
     mockthat::with_mock(test_symbol = FALSE, TRUE),
-    "Function `test_symbol` not found in environment mocktest"
+    paste("Function `test_symbol` not found in environment", pkg_nme)
   )
 })
 

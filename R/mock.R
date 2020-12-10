@@ -42,31 +42,15 @@
 #' specified as functions, will be mock-objects described in the previous
 #' paragraph.
 #'
-#' Calls to mock-objects either constructed using `mock()` or returned by
-#' `local_mock()` can keep track of how they were called and functions
-#' `mock_call()`, `mock_args()` and `mock_n_called()` can be used to retrieve
-#' related information:
-#'
-#' * `mock_call()`: retrieves the call captured by [base::match.call()]
-#' * `mock_arg()`: retrieves the value of the argument with name passed as
-#'   string-valued argument `arg`
-#' * `mock_args()`: retrieves a list of all arguments used for calling the
-#'   mocked function
-#' * `mock_n_called()`: counts the number of times the mocked function was
-#'   called
-#'
-#' Calls to mock objects are indexed chronologically and both `mock_call()`
-#' and `mock_args()` provide an argument `call_no` which can be used to specify
-#' which call is of interest, with the default being the most recent (or last)
-#' one.
-#'
 #' @param ... Named parameters redefine mocked functions, unnamed parameters
 #' will be evaluated after mocking the functions.
 #' @param mock_env The environment in which to patch the functions,
-#' defaults to the top-level environment. A string is interpreted as package
+#' defaults to either the package namespace when the environment variable
+#' `TESTTHAT_PKG` is set pr the calling environment. A string is interpreted
+#' as package
 #' name.
 #' @param eval_env Environment in which expressions passed as `...` are
-#' evaluated, defaults to [parent.frame()].
+#' evaluated, defaults to [base::parent.frame()].
 #'
 #' @examples
 #'
@@ -112,13 +96,7 @@
 #'   mock_env = "jsonlite"
 #' )
 #'
-#' mk <- mock("mocked request")
 #' dl <- function(x) curl::curl(x)
-#'
-#' with_mock(`curl::curl` = mk, dl(url))
-#'
-#' mock_call(mk)
-#' mock_args(mk)
 #'
 #' local({
 #'   mk <- local_mock(`curl::curl` = "mocked request")
@@ -126,15 +104,9 @@
 #' })
 #'
 #' @return
-#' * `local_mock()`: the result of the last unnamed argument passed as `...`
-#'   (evaluated in the environment passed as `eval_env`)
-#' * `local_mock()`: a list of functions or `mock_fun` objects (invisibly)
-#' * `mock()`: a `mock_fun` object
-#' * `mock_call()`: a call (created by [base::match.call()])
-#' * `mock_arg()`: the object used as specified function argument
-#' * `mock_args()`: a list of all function arguments used to create a call to
-#'   the `mock_fun` object in question
-#' * `mock_n_called()`: a scalar integer
+#' The result of the last unnamed argument passed as `...` (evaluated in the
+#' environment passed as `eval_env`) in the case of `local_mock()` and a list
+#' of functions or `mock_fun` objects (invisibly) for calls to `local_mock()`.
 #'
 #' @rdname mock
 #' @export
@@ -182,10 +154,11 @@ with_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame()) {
 #' line with current `testthat` practice. Powered by [withr::defer()], mocks
 #' are active for the life-time of the environment passed as `local_env`. If
 #' non-function objects are passed as `...`, `mock_fun` objects are created (
-#' and returned invisibly), which can be queried for call and argument
-#' information after having been called.
+#' and returned invisibly by [mock()]), which can be queried for call and
+#' argument information after having been called.
 #'
-#' @param local_env Passed to [withr::defer()] as `envir` argument
+#' @param local_env Passed to [withr::defer()] as `envir` argument (defaults
+#' to the values passed as `eval_env`)
 #'
 #' @rdname mock
 #' @export
@@ -208,133 +181,6 @@ local_mock <- function(..., mock_env = pkg_env(), eval_env = parent.frame(),
   lapply(mocks, set_mock)
 
   invisible(mfuns)
-}
-
-#' @param expr Expression to be used as body of the function to be mocked.
-#' @param env Environment used as ancestor to the mock function environment.
-#'
-#' @rdname mock
-#' @export
-mock <- function(expr, env = parent.frame()) {
-  mock_quo(substitute(expr), env = env)
-}
-
-#' @param x Object of class `mock_fun` to be queried for call and argument
-#' information.
-#' @param call_no The call number of interest (in case the function was called
-#' multiple times).
-#'
-#' @rdname mock
-#' @export
-mock_call <- function(x, call_no = mock_n_called(x)) {
-
-  stopifnot(length(call_no) == 1L, is.numeric(call_no))
-
-  get("call", envir = attr(singleton_list_to_mocked_fun(x), "env"))[[call_no]]
-}
-
-#' @rdname mock
-#' @export
-mock_args <- function(x, call_no = mock_n_called(x)) {
-  mock_arg_retriever(x, NULL, call_no)
-}
-
-#' @param arg String-valued argument name to be retrieved.
-#'
-#' @rdname mock
-#' @export
-mock_arg <- function(x, arg, call_no = mock_n_called(x)) {
-  stopifnot(is.character(arg), length(arg) == 1L)
-  mock_arg_retriever(x, arg, call_no)
-}
-
-mock_arg_retriever <- function(x, arg, call_no) {
-
-  stopifnot(length(call_no) == 1L, is.numeric(call_no))
-
-  x <- singleton_list_to_mocked_fun(x)
-
-  env <- attr(x, "env")
-  fun <- get("fun", envir = env)
-
-  called_args <- get("args", envir = env)[[call_no]]
-  formal_args <- formals(fun)
-
-  if (is.character(arg)) {
-    stopifnot(length(arg) == 1L)
-    if (arg %in% names(called_args)) {
-      return(called_args[[arg]])
-    }
-  }
-
-  defaults <- setdiff(names(formal_args), names(called_args))
-
-  formal_args[defaults] <- lapply(formal_args[defaults], eval,
-                                  environment(fun))
-  formal_args[names(called_args)] <- called_args
-
-  if (is.character(arg)) {
-    stopifnot(arg %in% names(formal_args))
-    return(formal_args[[arg]])
-  }
-
-  formal_args
-}
-
-#' @rdname mock
-#' @export
-mock_n_called <- function(x) {
-  length(get("call", envir = attr(singleton_list_to_mocked_fun(x), "env")))
-}
-
-singleton_list_to_mocked_fun <- function(x) {
-
-  if (is.list(x) && length(x) == 1L) {
-    x <- x[[1L]]
-  }
-
-  stopifnot(is_mock_fun(x))
-
-  x
-}
-
-is_mock_fun <- function(x) inherits(x, "mock_fun")
-
-mock_expr <- function(expr, env) {
-
-  if (is.function(expr) || is_mock_fun(expr)) {
-    return(expr)
-  }
-
-  mock_quo(expr, env)
-}
-
-mock_quo <- function(quo, env) {
-
-  capt <- quote({
-    mcal  <- match.call()
-    call <<- c(call, mcal)
-    args <<- c(args, list(lapply(as.list(mcal)[-1L], eval, parent.frame())))
-  })
-
-  if (is.function(quo)) {
-    par <- environment(quo)
-    quo <- body(quo)
-  } else {
-    par <- env
-  }
-
-  env <- list2env(list(call = list(), args = list()), parent = par)
-
-  if (is.language(quo) && identical(quo[[1L]], quote(`{`))) {
-    quo <- quo[-1L]
-  } else {
-    quo <- as.expression(quo)
-  }
-
-  capt[seq_along(quo) + length(capt)] <- quo
-
-  structure(capt, env = env, class = "mock_fun")
 }
 
 pkg_env <- function() {

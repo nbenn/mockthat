@@ -3,11 +3,6 @@
 \name{with_mock}
 \alias{with_mock}
 \alias{local_mock}
-\alias{mock}
-\alias{mock_call}
-\alias{mock_args}
-\alias{mock_arg}
-\alias{mock_n_called}
 \title{Mock functions in a package.}
 \usage{
 with_mock(..., mock_env = pkg_env(), eval_env = parent.frame())
@@ -18,54 +13,27 @@ local_mock(
   eval_env = parent.frame(),
   local_env = eval_env
 )
-
-mock(expr, env = parent.frame())
-
-mock_call(x, call_no = mock_n_called(x))
-
-mock_args(x, call_no = mock_n_called(x))
-
-mock_arg(x, arg, call_no = mock_n_called(x))
-
-mock_n_called(x)
 }
 \arguments{
 \item{...}{Named parameters redefine mocked functions, unnamed parameters
 will be evaluated after mocking the functions.}
 
 \item{mock_env}{The environment in which to patch the functions,
-defaults to the top-level environment. A string is interpreted as package
+defaults to either the package namespace when the environment variable
+\code{TESTTHAT_PKG} is set pr the calling environment. A string is interpreted
+as package
 name.}
 
 \item{eval_env}{Environment in which expressions passed as \code{...} are
-evaluated, defaults to \code{\link[=parent.frame]{parent.frame()}}.}
+evaluated, defaults to \code{\link[base:sys.parent]{base::parent.frame()}}.}
 
-\item{local_env}{Passed to \code{\link[withr:defer]{withr::defer()}} as \code{envir} argument}
-
-\item{expr}{Expression to be used as body of the function to be mocked.}
-
-\item{env}{Environment used as ancestor to the mock function environment.}
-
-\item{x}{Object of class \code{mock_fun} to be queried for call and argument
-information.}
-
-\item{call_no}{The call number of interest (in case the function was called
-multiple times).}
-
-\item{arg}{String-valued argument name to be retrieved.}
+\item{local_env}{Passed to \code{\link[withr:defer]{withr::defer()}} as \code{envir} argument (defaults
+to the values passed as \code{eval_env})}
 }
 \value{
-\itemize{
-\item \code{local_mock()}: the result of the last unnamed argument passed as \code{...}
-(evaluated in the environment passed as \code{eval_env})
-\item \code{local_mock()}: a list of functions or \code{mock_fun} objects (invisibly)
-\item \code{mock()}: a \code{mock_fun} object
-\item \code{mock_call()}: a call (created by \code{\link[base:match.call]{base::match.call()}})
-\item \code{mock_arg()}: the object used as specified function argument
-\item \code{mock_args()}: a list of all function arguments used to create a call to
-the \code{mock_fun} object in question
-\item \code{mock_n_called()}: a scalar integer
-}
+The result of the last unnamed argument passed as \code{...} (evaluated in the
+environment passed as \code{eval_env}) in the case of \code{local_mock()} and a list
+of functions or \code{mock_fun} objects (invisibly) for calls to \code{local_mock()}.
 }
 \description{
 Mocking allows you to temporary replace the implementation of functions
@@ -107,25 +75,6 @@ evaluating the last unnamed argument passed as \code{...}, \code{local_mock()}
 (invisibly) returns the functions used for mocking, which if not fully
 specified as functions, will be mock-objects described in the previous
 paragraph.
-
-Calls to mock-objects either constructed using \code{mock()} or returned by
-\code{local_mock()} can keep track of how they were called and functions
-\code{mock_call()}, \code{mock_args()} and \code{mock_n_called()} can be used to retrieve
-related information:
-\itemize{
-\item \code{mock_call()}: retrieves the call captured by \code{\link[base:match.call]{base::match.call()}}
-\item \code{mock_arg()}: retrieves the value of the argument with name passed as
-string-valued argument \code{arg}
-\item \code{mock_args()}: retrieves a list of all arguments used for calling the
-mocked function
-\item \code{mock_n_called()}: counts the number of times the mocked function was
-called
-}
-
-Calls to mock objects are indexed chronologically and both \code{mock_call()}
-and \code{mock_args()} provide an argument \code{call_no} which can be used to specify
-which call is of interest, with the default being the most recent (or last)
-one.
 }
 \examples{
 
@@ -171,13 +120,7 @@ with_mock(
   mock_env = "jsonlite"
 )
 
-mk <- mock("mocked request")
 dl <- function(x) curl::curl(x)
-
-with_mock(`curl::curl` = mk, dl(url))
-
-mock_call(mk)
-mock_args(mk)
 
 local({
   mk <- local_mock(`curl::curl` = "mocked request")

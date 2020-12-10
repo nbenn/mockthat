@@ -146,15 +146,15 @@
 <span class="co">#&gt; depth 3: nope</span></code></pre></div>
 <p>Borrowing from <code>mockery</code>, <code>mockthat</code> also allows for creating mock objects (with class attribute <code>mock_fun</code>), which allow capture of the call for later examination.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/with_mock.html">mock</a></span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mock.html">mock</a></span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span>
 <span class="va">dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.cran.dev/curl/reference/curl.html">curl</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
 
 <span class="fu"><a href="reference/with_mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [1] "mocked request"</span>
 
-<span class="fu"><a href="reference/with_mock.html">mock_call</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
+<span class="fu"><a href="reference/mock.html">mock_call</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
 <span class="co">#&gt; curl::curl(url = url)</span>
-<span class="fu"><a href="reference/with_mock.html">mock_args</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
+<span class="fu"><a href="reference/mock.html">mock_args</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
 <span class="co">#&gt; $url</span>
 <span class="co">#&gt; [1] "https://eu.httpbin.org/get?foo=123"</span>
 <span class="co">#&gt; </span>
@@ -169,7 +169,7 @@
 <span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/with_mock.html">local_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="st">"mocked request"</span>, local_env <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span>
 <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
 <span class="co">#&gt; [1] "mocked request"</span>
-<span class="fu"><a href="reference/with_mock.html">mock_arg</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
+<span class="fu"><a href="reference/mock.html">mock_arg</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
 <span class="co">#&gt; [1] "https://eu.httpbin.org/get?foo=123"</span></code></pre></div>
 </div>
 </div>

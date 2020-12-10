@@ -161,10 +161,10 @@ keeps the mocks in place for the life-time of the environment passed as
 returned invisibly) for all non-function objects passed as `...`.
 
 ``` r
-mk <- local_mock(`curl::curl` = "mocked request")
-dl(url)
-#> [1] "mocked request"
-
-mock_args(mk, "url")
+local({
+  mk <- local_mock(`curl::curl` = "mocked request")
+  dl(url)
+  mock_arg(mk, "url")
+})
 #> [1] "https://eu.httpbin.org/get?foo=123"
 ```

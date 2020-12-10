@@ -369,10 +369,8 @@ extract_mocks <- function(funs, env) {
 extract_mock <- function(fun_name, new_val, env) {
 
   fun_exists <- function(name, envir) {
-    is.environment(envir) &&
-      exists(name, envir = envir, mode = "function", inherits = FALSE)
+    exists(name, envir = envir, mode = "function", inherits = FALSE)
   }
-
 
   rgx <- "^(?:(.*[^:])::(?:[:]?))?(.*)$"
 
@@ -395,11 +393,20 @@ extract_mock <- function(fun_name, new_val, env) {
     )
   }
 
-  if (fun_exists(fun_name, env) && !fun_exists(fun_name, environment(fun))) {
+  fun_env <- environment(fun)
+  imp_env <- imports_env(env)
+
+  if (fun_exists(fun_name, env) && isNamespace(fun_env) &&
+      !fun_exists(fun_name, fun_env)) {
+
     new_mock(fun_name, fun, new_val, env)
-  } else if (fun_exists(fun_name, imports_env(env))) {
-    new_mock(fun_name, fun, new_val, imports_env(env))
+
+  } else if (is.environment(imp_env) && fun_exists(fun_name, imp_env)) {
+
+    new_mock(fun_name, fun, new_val, imp_env)
+
   } else {
+
     new_mock(fun_name, fun, new_val, environment(fun))
   }
 }

@@ -229,6 +229,8 @@ test_that("mock within S3 dispatch", {
   expect_identical(test_s3(x), 10L)
   expect_identical(mockthat::with_mock(test_non_exported = 5L, test_s3(x)), 5L)
 
+  skip_if(getRversion() < "3.5.0")
+
   expect_identical(test_s3(1L), 5L)
   expect_identical(mockthat::with_mock(test_s3.default = 2L, test_s3(1L)), 2L)
 })

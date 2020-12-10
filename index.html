@@ -165,11 +165,11 @@
 <span class="co">#&gt; &lt;curl handle&gt; (empty)</span></code></pre></div>
 <p>In addition to <code><a href="reference/with_mock.html">with_mock()</a></code>, <code>mockthat</code> also offers a <code><a href="reference/with_mock.html">local_mock()</a></code> function, again, mimicking the deprecated <code>testthat</code> function, which keeps the mocks in place for the life-time of the environment passed as <code>local_env</code> argument. Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as <code>...</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/with_mock.html">local_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="st">"mocked request"</span><span class="op">)</span>
-<span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
-<span class="co">#&gt; [1] "mocked request"</span>
-
-<span class="fu"><a href="reference/with_mock.html">mock_args</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/eval.html">local</a></span><span class="op">(</span><span class="op">{</span>
+  <span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/with_mock.html">local_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="st">"mocked request"</span><span class="op">)</span>
+  <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
+  <span class="fu"><a href="reference/with_mock.html">mock_arg</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
+<span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt; [1] "https://eu.httpbin.org/get?foo=123"</span></code></pre></div>
 </div>
 </div>

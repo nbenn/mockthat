@@ -346,42 +346,36 @@ pkg_env <- function() {
   }
 
   if (identical(res, "")) {
-    topenv()
+    parent.frame(2L)
   } else {
     asNamespace(res)
   }
 }
 
 extract_mocks <- function(funs, env) {
-
-  if (is.environment(env)) {
-    env <- environmentName(env)
-  }
-
-  Map(
-    extract_mock,
-    names(funs),
-    funs,
-    MoreArgs = list(env = env)
-  )
+  Map(extract_mock, names(funs), funs, MoreArgs = list(env = env))
 }
 
 extract_mock <- function(fun_name, new_val, env) {
-
-  fun_exists <- function(name, envir) {
-    exists(name, envir = envir, mode = "function", inherits = FALSE)
-  }
 
   rgx <- "^(?:(.*[^:])::(?:[:]?))?(.*)$"
 
   pkg_name <- gsub(rgx, "\\1", fun_name)
   fun_name <- gsub(rgx, "\\2", fun_name)
 
-  if (pkg_name == "") {
-    pkg_name <- env
+  if (identical(pkg_name, "")) {
+
+    if (is.null(null_or_ns(env))) {
+      env <- environment(get0(fun_name, envir = env, mode = "function"))
+    } else {
+      env <- null_or_ns(env)
+    }
+
+  } else {
+
+    env <- asNamespace(pkg_name)
   }
 
-  env <- asNamespace(pkg_name)
   fun <- get0(fun_name, envir = env, mode = "function")
 
   if (is.null(fun)) {
@@ -411,6 +405,23 @@ extract_mock <- function(fun_name, new_val, env) {
   }
 }
 
+fun_exists <- function(name, envir, inherits = FALSE) {
+  exists(name, envir = envir, mode = "function", inherits = inherits)
+}
+
+null_or_ns <- function(x) {
+
+  if (is.character(x) || is.name(x)) {
+    x <- getNamespace(x)
+  }
+
+  if (isNamespace(x)) {
+    return(x)
+  }
+
+  NULL
+}
+
 imports_env <- function(x) {
 
   if (!isNamespace(x)) {
@@ -418,7 +429,7 @@ imports_env <- function(x) {
   }
 
   res <- parent.env(x)
-  nme <- paste("imports", environmentName(x), sep =":")
+  nme <- paste("imports", environmentName(x), sep = ":")
 
   if (identical(attr(res, "name"), nme)) {
     return(res)

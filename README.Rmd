@@ -109,12 +109,11 @@ mock_args(mk)
 ```
 
 In addition to `with_mock()`, `mockthat` also offers a `local_mock()` function,
-again, mimicking the deprecated `testthat` function, which keeps the mocks in place for the life-time of the environment passed as `local_env` argument. Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as `...`.
+again, mimicking the deprecated `testthat` function, which keeps the mocks in place for the life-time of the environment passed as `local_env` argument (or if called from the global environment, until `withr::deferred_run()` is executed). Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as `...`.
 
 ```{r local-mock}
-local({
-  mk <- local_mock(`curl::curl` = "mocked request")
-  dl(url)
-  mock_arg(mk, "url")
-})
+tmp <- new.env()
+mk <- local_mock(`curl::curl` = "mocked request", local_env = tmp)
+dl(url)
+mock_arg(mk, "url")
 ```

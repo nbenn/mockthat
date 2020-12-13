@@ -108,6 +108,10 @@ mock_arg_retriever <- function(x, arg, call_no) {
   called_args <- get("args", envir = env)[[call_no]]
   formal_args <- formals(fun)
 
+  if ("..." %in% names(formal_args)) {
+    formal_args <- formal_args[!names(formal_args) %in% "..."]
+  }
+
   if (is.character(arg)) {
     stopifnot(length(arg) == 1L)
     if (arg %in% names(called_args)) {

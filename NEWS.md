@@ -1,3 +1,7 @@
+# mockthat 0.2.6
+
+* Fix return objects with length > 1
+
 # mockthat 0.2.5
 
 * Fix mocking imported functions

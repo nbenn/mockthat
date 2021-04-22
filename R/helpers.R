@@ -183,9 +183,13 @@ mock_quo <- function(quo, env) {
 
     quo <- quo[-1L]
 
-  } else {
+  } else if (is.language(quo)) {
 
     quo <- as.expression(quo)
+
+  } else {
+
+    quo <- list(quo)
   }
 
   capt[seq_along(quo) + length(capt)] <- quo

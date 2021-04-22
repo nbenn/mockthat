@@ -282,3 +282,33 @@ test_that("mock imports", {
 
   expect_identical(res, "bar")
 })
+
+test_that("mock returns", {
+
+  obj <- "bar"
+
+  res <- mockthat::with_mock(
+    curl_dl_mem = obj,
+    test_depends("foo", "mem")
+  )
+
+  expect_identical(res, obj)
+
+  obj <- c("bar", "baz")
+
+  res <- mockthat::with_mock(
+    curl_dl_mem = obj,
+    test_depends("foo", "mem")
+  )
+
+  expect_identical(res, obj)
+
+  obj <- list(a = 1, b = 2)
+
+  res <- mockthat::with_mock(
+    curl_dl_mem = obj,
+    test_depends("foo", "mem")
+  )
+
+  expect_identical(res, obj)
+})

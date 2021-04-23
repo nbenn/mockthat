@@ -9,4 +9,4 @@
 
 0 errors | 0 warnings | 0 notes
 
-* This is a minor bugfix update.
+* This is re-submission of a minor bugfix update.

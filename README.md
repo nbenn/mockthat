@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Lifecycle](https://lifecycle.r-lib.org/articles/figures/lifecycle-stable.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R build
 status](https://github.com/nbenn/mockthat/workflows/build/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Abuild)
 [![R check

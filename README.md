@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![Lifecycle](https://lifecycle.r-lib.org/articles/figures/lifecycle-stable.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R build
 status](https://github.com/nbenn/mockthat/workflows/build/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Abuild)
 [![R check
@@ -111,7 +111,7 @@ mockr::with_mock(
   foo = function(x) "bar",
   met(x)
 )
-#> Error in foo(x): foo
+#> Error in loadNamespace(x): there is no package called 'mockr'
 ```
 
 And with the current API of

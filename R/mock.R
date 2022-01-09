@@ -342,6 +342,11 @@ do_assign <- function(name, val, env) {
 
   } else {
 
+    if (bindingIsLocked(name, env)) {
+      unlockBinding(name, env)
+      on.exit(lockBinding(name, env))
+    }
+
     assign(name, val, envir = env)
   }
 }

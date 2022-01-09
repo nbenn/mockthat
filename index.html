@@ -27,6 +27,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -39,18 +41,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">mockthat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.6</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -60,7 +56,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/nbenn/mockthat/">
+  <a href="https://github.com/nbenn/mockthat/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -77,84 +73,84 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="mockthat" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#mockthat" class="anchor"></a>mockthat</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="mockthat">mockthat<a class="anchor" aria-label="anchor" href="#mockthat"></a>
+</h1></div>
 <!-- badges: start -->
 
-<p>With version 3.0.0 of <code>testthat</code>, mocking capabilities provided by <a href="https://testthat.r-lib.org/reference/with_mock.html"><code>testthat::with_mock()</code></a> and <a href="https://testthat.r-lib.org/reference/with_mock.html"><code>testthat::local_mock()</code></a> have been deprecated under edition 3. This leaves implementation of function mocking for unit testing to third-party packages, of which two have been published on CRAN: <a href="https://cran.r-project.org/package=mockery"><code>mockery</code></a> and <a href="https://cran.r-project.org/package=mockr"><code>mockr</code></a>. While all currently available mocking implementations have their limitations, what sets <code>mockthat</code> apart from <code>mockery</code> and <code>mockr</code> is coping with S3 dispatch (see example below).</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the development version of <code>mockthat</code> from <a href="https://github.com/">GitHub</a> with:</p>
+<p>With version 3.0.0 of <code>testthat</code>, mocking capabilities provided by <a href="https://testthat.r-lib.org/reference/with_mock.html" class="external-link"><code>testthat::with_mock()</code></a> and <a href="https://testthat.r-lib.org/reference/with_mock.html" class="external-link"><code>testthat::local_mock()</code></a> have been deprecated under edition 3. This leaves implementation of function mocking for unit testing to third-party packages, of which two have been published on CRAN: <a href="https://cran.r-project.org/package=mockery" class="external-link"><code>mockery</code></a> and <a href="https://cran.r-project.org/package=mockr" class="external-link"><code>mockr</code></a>. While all currently available mocking implementations have their limitations, what sets <code>mockthat</code> apart from <code>mockery</code> and <code>mockr</code> is coping with S3 dispatch (see example below).</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version of <code>mockthat</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nbenn/mockthat"</span><span class="op">)</span></code></pre></div>
-<p>A release version will be submitted to <a href="https://CRAN.R-project.org">CRAN</a> shortly.</p>
+<p>A release version will be submitted to <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> shortly.</p>
 </div>
-<div id="example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
 <p>Mocking in the context of unit testing refers to temporarily replacing a piece of functionality (that might be part of the package being tested or potentially even part of a downstream dependency) in order to cope with limited infrastructure in testing environments (for example absence of a live Internet connection).</p>
-<p>The function <a href="https://rdrr.io/cran/jsonlite/man/fromJSON.html"><code>jsonlite::fromJSON()</code></a>, for example, internally calls <a href="https://rdrr.io/cran/curl/man/curl.html"><code>curl::curl()</code></a> when the value passed as <code>txt</code> argument is a string that resembles an URL. In order to no longer be reliant on an Internet connection, the function <code><a href="https://jeroen.cran.dev/curl/reference/curl.html">curl::curl()</a></code> can be substituted with a stub that simply returns a constant.</p>
+<p>The function <a href="https://rdrr.io/cran/jsonlite/man/fromJSON.html" class="external-link"><code>jsonlite::fromJSON()</code></a>, for example, internally calls <a href="https://rdrr.io/cran/curl/man/curl.html" class="external-link"><code>curl::curl()</code></a> when the value passed as <code>txt</code> argument is a string that resembles an URL. In order to no longer be reliant on an Internet connection, the function <code><a href="https://rdrr.io/pkg/curl/man/curl.html" class="external-link">curl::curl()</a></code> can be substituted with a stub that simply returns a constant.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nbenn.github.io/mockthat/">mockthat</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nbenn.github.io/mockthat/" class="external-link">mockthat</a></span><span class="op">)</span>
 
 <span class="va">url</span> <span class="op">&lt;-</span> <span class="st">"https://eu.httpbin.org/get?foo=123"</span>
 
-<span class="fu"><a href="reference/with_mock.html">with_mock</a></span><span class="op">(</span>
+<span class="fu"><a href="reference/mock.html">with_mock</a></span><span class="op">(</span>
   `curl::curl` <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="st">'["mocked request"]'</span>,
-  <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html">fromJSON</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
+  <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; [1] "mocked request"</span></code></pre></div>
 <p>As mentioned above, the main point of differentiation of <code>mockthat</code> over the other available packages <code>mockery</code> and <code>mockr</code> is stubbing out functions in the context of S3 dispatch. Assuming the following set-up,</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gen</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/UseMethod.html">UseMethod</a></span><span class="op">(</span><span class="st">"gen"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">gen</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">UseMethod</a></span><span class="op">(</span><span class="st">"gen"</span><span class="op">)</span>
 
 <span class="va">met</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">foo</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 
-<span class="va">foo</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html">stop</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span>
+<span class="va">foo</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"foo"</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/S3method.html">.S3method</a></span><span class="op">(</span><span class="st">"gen"</span>, <span class="st">"cls"</span>, <span class="va">met</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/S3method.html" class="external-link">.S3method</a></span><span class="op">(</span><span class="st">"gen"</span>, <span class="st">"cls"</span>, <span class="va">met</span><span class="op">)</span>
 
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html">structure</a></span><span class="op">(</span><span class="fl">123</span>, class <span class="op">=</span> <span class="st">"cls"</span><span class="op">)</span>
+<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fl">123</span>, class <span class="op">=</span> <span class="st">"cls"</span><span class="op">)</span>
 
 <span class="fu">gen</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 <span class="co">#&gt; Error in foo(x): foo</span></code></pre></div>
-<p><code><a href="reference/with_mock.html">mockthat::with_mock()</a></code> can be used to catch the call to <code>foo()</code> and therefore prevent the error from being thrown.</p>
+<p><code><a href="reference/mock.html">mockthat::with_mock()</a></code> can be used to catch the call to <code>foo()</code> and therefore prevent the error from being thrown.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">mockthat</span><span class="fu">::</span><span class="fu"><a href="reference/with_mock.html">with_mock</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="fu">mockthat</span><span class="fu">::</span><span class="fu"><a href="reference/mock.html">with_mock</a></span><span class="op">(</span>
   foo <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="st">"bar"</span>,
   <span class="fu">met</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; [1] "bar"</span></code></pre></div>
-<p>This is not possible with the current implementation of <a href="https://krlmlr.github.io/mockr/reference/with_mock.html"><code>mockr::with_mock()</code></a>.</p>
+<p>This is not possible with the current implementation of <a href="https://krlmlr.github.io/mockr/reference/with_mock.html" class="external-link"><code>mockr::with_mock()</code></a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">mockr</span><span class="fu">::</span><span class="fu">with_mock</span><span class="op">(</span>
   foo <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="st">"bar"</span>,
   <span class="fu">met</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 <span class="op">)</span>
-<span class="co">#&gt; Error in foo(x): foo</span></code></pre></div>
-<p>And with the current API of <a href="https://rdrr.io/cran/mockery/man/stub.html"><code>mockery::stub()</code></a> it is unclear how the <code>depth</code> argument should be chosen, as the function <code>gen()</code> does not contain a call to <code>met()</code>. Trying a range of sensible values does not yield the desired result.</p>
+<span class="co">#&gt; Error in loadNamespace(x): there is no package called 'mockr'</span></code></pre></div>
+<p>And with the current API of <a href="https://rdrr.io/cran/mockery/man/stub.html" class="external-link"><code>mockery::stub()</code></a> it is unclear how the <code>depth</code> argument should be chosen, as the function <code>gen()</code> does not contain a call to <code>met()</code>. Trying a range of sensible values does not yield the desired result.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">depth</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">depth</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
   <span class="fu">mockery</span><span class="fu">::</span><span class="fu">stub</span><span class="op">(</span><span class="va">gen</span>, <span class="st">"foo"</span>, <span class="st">"bar"</span>, depth <span class="op">=</span> <span class="va">depth</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html">tryCatch</a></span><span class="op">(</span><span class="fu">met</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"depth "</span>, <span class="va">depth</span>, <span class="st">": nope"</span><span class="op">)</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu">met</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"depth "</span>, <span class="va">depth</span>, <span class="st">": nope"</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 <span class="co">#&gt; depth 1: nope</span>
 <span class="co">#&gt; depth 2: nope</span>
 <span class="co">#&gt; depth 3: nope</span></code></pre></div>
 <p>Borrowing from <code>mockery</code>, <code>mockthat</code> also allows for creating mock objects (with class attribute <code>mock_fun</code>), which allow capture of the call for later examination.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mock.html">mock</a></span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span>
-<span class="va">dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.cran.dev/curl/reference/curl.html">curl</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/helpers.html">mock</a></span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span>
+<span class="va">dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/curl.html" class="external-link">curl</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
 
-<span class="fu"><a href="reference/with_mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="reference/mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [1] "mocked request"</span>
 
-<span class="fu"><a href="reference/mock.html">mock_call</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
+<span class="fu"><a href="reference/helpers.html">mock_call</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
 <span class="co">#&gt; curl::curl(url = url)</span>
-<span class="fu"><a href="reference/mock.html">mock_args</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
+<span class="fu"><a href="reference/helpers.html">mock_args</a></span><span class="op">(</span><span class="va">mk</span><span class="op">)</span>
 <span class="co">#&gt; $url</span>
 <span class="co">#&gt; [1] "https://eu.httpbin.org/get?foo=123"</span>
 <span class="co">#&gt; </span>
@@ -163,13 +159,13 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $handle</span>
 <span class="co">#&gt; &lt;curl handle&gt; (empty)</span></code></pre></div>
-<p>In addition to <code><a href="reference/with_mock.html">with_mock()</a></code>, <code>mockthat</code> also offers a <code><a href="reference/with_mock.html">local_mock()</a></code> function, again, mimicking the deprecated <code>testthat</code> function, which keeps the mocks in place for the life-time of the environment passed as <code>local_env</code> argument (or if called from the global environment, until <code><a href="https://withr.r-lib.org/reference/defer.html">withr::deferred_run()</a></code> is executed). Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as <code>...</code>.</p>
+<p>In addition to <code><a href="reference/mock.html">with_mock()</a></code>, <code>mockthat</code> also offers a <code><a href="reference/mock.html">local_mock()</a></code> function, again, mimicking the deprecated <code>testthat</code> function, which keeps the mocks in place for the life-time of the environment passed as <code>local_env</code> argument (or if called from the global environment, until <code><a href="https://withr.r-lib.org/reference/defer.html" class="external-link">withr::deferred_run()</a></code> is executed). Mock objects as shown above are created (and returned invisibly) for all non-function objects passed as <code>...</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/with_mock.html">local_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="st">"mocked request"</span>, local_env <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mock.html">local_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="st">"mocked request"</span>, local_env <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span>
 <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span>
 <span class="co">#&gt; [1] "mocked request"</span>
-<span class="fu"><a href="reference/mock.html">mock_arg</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
+<span class="fu"><a href="reference/helpers.html">mock_arg</a></span><span class="op">(</span><span class="va">mk</span>, <span class="st">"url"</span><span class="op">)</span>
 <span class="co">#&gt; [1] "https://eu.httpbin.org/get?foo=123"</span></code></pre></div>
 </div>
 </div>
@@ -177,51 +173,61 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=mockthat">https://​cloud.r-project.org/​package=mockthat</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/nbenn/mockthat/">https://​github.com/​nbenn/​mockthat/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/nbenn/mockthat/issues">https://​github.com/​nbenn/​mockthat/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=mockthat" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/nbenn/mockthat/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/nbenn/mockthat/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing mockthat</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Nicolas Bennett <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable"><img src="https://lifecycle.r-lib.org/articles/figures/lifecycle-stable.svg" alt="Lifecycle"></a></li>
-<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Abuild"><img src="https://github.com/nbenn/mockthat/workflows/build/badge.svg" alt="R build status"></a></li>
-<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Acheck"><img src="https://github.com/nbenn/mockthat/workflows/check/badge.svg" alt="R check status"></a></li>
-<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Apkgdown"><img src="https://github.com/nbenn/mockthat/workflows/pkgdown/badge.svg" alt="pkgdown build status"></a></li>
-<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Acoverage"><img src="https://github.com/nbenn/mockthat/workflows/coverage/badge.svg" alt="covr status"></a></li>
-<li><a href="https://codecov.io/gh/nbenn/mockthat"><img src="https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5" alt="Codecov test coverage"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle"></a></li>
+<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Abuild" class="external-link"><img src="https://github.com/nbenn/mockthat/workflows/build/badge.svg" alt="R build status"></a></li>
+<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Acheck" class="external-link"><img src="https://github.com/nbenn/mockthat/workflows/check/badge.svg" alt="R check status"></a></li>
+<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Apkgdown" class="external-link"><img src="https://github.com/nbenn/mockthat/workflows/pkgdown/badge.svg" alt="pkgdown build status"></a></li>
+<li><a href="https://github.com/nbenn/mockthat/actions?query=workflow%3Acoverage" class="external-link"><img src="https://github.com/nbenn/mockthat/workflows/coverage/badge.svg" alt="covr status"></a></li>
+<li><a href="https://codecov.io/gh/nbenn/mockthat" class="external-link"><img src="https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Nicolas Bennett.</p>
+  <p></p>
+<p>Developed by Nicolas Bennett.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -229,6 +235,8 @@
 
   
 
+
+  
 
   </body>
 </html>

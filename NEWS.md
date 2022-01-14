@@ -1,3 +1,7 @@
+# mockthat 0.2.7
+
+* Bugfix.
+
 # mockthat 0.2.6
 
 * Fix return objects with length > 1

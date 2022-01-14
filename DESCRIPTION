@@ -1,6 +1,6 @@
 Package: mockthat
 Title: Function Mocking for Unit Testing in R
-Version: 0.2.6
+Version: 0.2.7
 Authors@R:
     person(given = "Nicolas",
            family = "Bennett",
@@ -21,7 +21,8 @@ BugReports: https://github.com/nbenn/mockthat/issues
 Depends:
     R (>= 3.3.0)
 Imports:
-    utils
+    utils,
+    rlang
 Suggests:
     testthat,
     pkgload,

@@ -342,9 +342,9 @@ do_assign <- function(name, val, env) {
 
   } else {
 
-    if (bindingIsLocked(name, env)) {
-      unlockBinding(name, env)
-      on.exit(lockBinding(name, env))
+    if (rlang::env_binding_are_locked(env, name)) {
+      rlang::env_binding_unlock(env, name)
+      on.exit(rlang::env_binding_lock(env, name))
     }
 
     assign(name, val, envir = env)

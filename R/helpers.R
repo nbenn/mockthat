@@ -93,12 +93,14 @@ mock_args <- function(x, call_no = mock_n_called(x)) {
 #' @export
 mock_arg <- function(x, arg, call_no = mock_n_called(x)) {
   stopifnot(is.character(arg), length(arg) == 1L)
+  if (call_no == 0)
+    stop("mocked function was never called")
   mock_arg_retriever(x, arg, call_no)
 }
 
 mock_arg_retriever <- function(x, arg, call_no) {
 
-  stopifnot(length(call_no) == 1L, is.numeric(call_no))
+  stopifnot(length(call_no) == 1L, is.numeric(call_no), call_no > 0)
 
   x <- singleton_list_to_mocked_fun(x)
 

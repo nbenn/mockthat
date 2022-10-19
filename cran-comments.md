@@ -1,8 +1,8 @@
 ## Test environments
 * local R installation, macOS 12.6, R 4.2.1
-* GitHub Actions (ubuntu-16.04): 3.3, 3.4, 3.5, oldrel, release, devel
-* GitHub Actions (windows): 3.6, release
-* Github Actions (macOS): release
+* GitHub Actions (ubuntu-latest): oldrel-1, release, devel
+* GitHub Actions (windows-latest): release
+* Github Actions (macOS-latest): release
 * win-builder (devel)
 
 ## R CMD check results

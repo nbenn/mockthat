@@ -97,31 +97,9 @@ with_mock(
   dl_fun(url)
 )
 
-json <- function(...) '["mocked request"]'
-
 with_mock(
-  `curl::curl` = json,
-  jsonlite::fromJSON(url)
-)
-
-with_mock(
-  `curl::curl` = '["mocked request"]',
-  jsonlite::fromJSON(url)
-)
-
-with_mock(
-  `curl::curl` = quote({
-    x <- "mocked request"
-    paste0('["', x, '"]')
-  }),
-  jsonlite::fromJSON(url)
-)
-
-with_mock(
-  `curl::curl` = json,
-  parse_and_simplify = function(txt, ...) gsub('\\\\[?\\\\"\\\\]?', "", txt),
-  jsonlite::fromJSON(url),
-  mock_env = "jsonlite"
+  `curl::curl_fetch_memory` = "mocked request",
+  dl_fun(url)
 )
 
 dl <- function(x) curl::curl(x)

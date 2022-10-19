@@ -1,6 +1,6 @@
 Package: mockthat
 Title: Function Mocking for Unit Testing in R
-Version: 0.2.7
+Version: 0.2.8
 Authors@R:
     person(given = "Nicolas",
            family = "Bennett",
@@ -32,4 +32,4 @@ Suggests:
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1

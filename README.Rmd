@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![R check status](https://github.com/nbenn/mockthat/workflows/check/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Acheck)
 [![pkgdown build status](https://github.com/nbenn/mockthat/workflows/pkgdown/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Apkgdown)
 [![covr status](https://github.com/nbenn/mockthat/workflows/coverage/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Acoverage)
-[![Codecov test coverage](https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5)](https://codecov.io/gh/nbenn/mockthat)
+[![Codecov test coverage](https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5)](https://app.codecov.io/gh/nbenn/mockthat)
 <!-- badges: end -->
 
 With version 3.0.0 of `testthat`, mocking capabilities provided by [`testthat::with_mock()`](https://testthat.r-lib.org/reference/with_mock.html) and [`testthat::local_mock()`](https://testthat.r-lib.org/reference/with_mock.html) have been deprecated under edition 3. This leaves implementation of function mocking for unit testing to third-party packages, of which two have been published on CRAN: [`mockery`](https://cran.r-project.org/package=mockery) and [`mockr`](https://cran.r-project.org/package=mockr). While all currently available mocking implementations have their limitations, what sets `mockthat` apart from `mockery` and `mockr` is coping with S3 dispatch (see example below).
@@ -87,7 +87,7 @@ mockthat::with_mock(
 )
 ```
 
-This is not possible with the current implementation of [`mockr::with_mock()`](https://krlmlr.github.io/mockr/reference/with_mock.html).
+This is not possible with the current implementation of [`mockr::with_mock()`](https://krlmlr.github.io/mockr/reference/local_mock.html).
 
 ```{r s3-mockr, error = TRUE}
 mockr::with_mock(

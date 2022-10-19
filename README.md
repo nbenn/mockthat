@@ -15,7 +15,7 @@ status](https://github.com/nbenn/mockthat/workflows/pkgdown/badge.svg)](https://
 [![covr
 status](https://github.com/nbenn/mockthat/workflows/coverage/badge.svg)](https://github.com/nbenn/mockthat/actions?query=workflow%3Acoverage)
 [![Codecov test
-coverage](https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5)](https://codecov.io/gh/nbenn/mockthat)
+coverage](https://codecov.io/gh/nbenn/mockthat/branch/master/graph/badge.svg?token=9v2gSCz5K5)](https://app.codecov.io/gh/nbenn/mockthat)
 <!-- badges: end -->
 
 With version 3.0.0 of `testthat`, mocking capabilities provided by
@@ -108,7 +108,7 @@ mockthat::with_mock(
 ```
 
 This is not possible with the current implementation of
-[`mockr::with_mock()`](https://krlmlr.github.io/mockr/reference/with_mock.html).
+[`mockr::with_mock()`](https://krlmlr.github.io/mockr/reference/local_mock.html).
 
 ``` r
 mockr::with_mock(

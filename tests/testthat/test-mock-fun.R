@@ -20,3 +20,13 @@ test_that("create and query mock_fun", {
   skip_if(getRversion() < "3.6.0")
   expect_identical(mock_call(mk), str2lang("curl::curl(url = url)"))
 })
+
+test_that("mock_arg errs if mocked function wasn't called", {
+  url <- "https://eu.httpbin.org/get?foo=123"
+  mk <- mock("mocked request")
+  with_mock(`curl::curl` = mk, {})
+  expect_error(
+    mock_arg(mk, "url"),
+    "mocked function was never called"
+  )
+})

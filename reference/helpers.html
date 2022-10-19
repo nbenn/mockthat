@@ -20,7 +20,7 @@ related information."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mockthat</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.8</span>
       </span>
     </div>
 
@@ -59,35 +59,46 @@ related information.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">mock</span><span class="op">(</span><span class="va">expr</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">mock_call</span><span class="op">(</span><span class="va">x</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">mock_args</span><span class="op">(</span><span class="va">x</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">mock_arg</span><span class="op">(</span><span class="va">x</span>, <span class="va">arg</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mock</span><span class="op">(</span><span class="va">expr</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mock_call</span><span class="op">(</span><span class="va">x</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mock_args</span><span class="op">(</span><span class="va">x</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mock_arg</span><span class="op">(</span><span class="va">x</span>, <span class="va">arg</span>, call_no <span class="op">=</span> <span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mock_n_called</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>expr</dt>
 <dd><p>Expression to be used as body of the function to be mocked.</p></dd>
+
+
 <dt>env</dt>
 <dd><p>Environment used as ancestor to the mock function environment.</p></dd>
+
+
 <dt>x</dt>
 <dd><p>Object of class <code>mock_fun</code> to be queried for call and argument
 information.</p></dd>
+
+
 <dt>call_no</dt>
 <dd><p>The call number of interest (in case the function was called
 multiple times).</p></dd>
+
+
 <dt>arg</dt>
 <dd><p>String-valued argument name to be retrieved.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <ul><li><p><code>mock()</code>: a <code>mock_fun</code> object</p></li>
+    
+
+<ul><li><p><code>mock()</code>: a <code>mock_fun</code> object</p></li>
 <li><p><code>mock_call()</code>: a call (created by <code><a href="https://rdrr.io/r/base/match.call.html" class="external-link">base::match.call()</a></code>)</p></li>
 <li><p><code>mock_arg()</code>: the object used as specified function argument</p></li>
 <li><p><code>mock_args()</code>: a list of all function arguments used to create a call to
@@ -116,17 +127,17 @@ one.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">url</span> <span class="op">&lt;-</span> <span class="st">"https://eu.httpbin.org/get?foo=123"</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/curl.html" class="external-link">curl</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">url</span> <span class="op">&lt;-</span> <span class="st">"https://eu.httpbin.org/get?foo=123"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="st">"mocked request"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/curl.html" class="external-link">curl</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mocked request"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">mock_call</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">mock_call</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> curl::curl(url = x)</span>
-<span class="r-in"><span class="fu">mock_args</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">mock_args</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $url</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "https://eu.httpbin.org/get?foo=123"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -136,22 +147,22 @@ one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $handle</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;curl handle&gt; (empty)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="fu">mock_n_called</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">mock_n_called</span><span class="op">(</span><span class="va">mk</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="op">{</span></span>
-<span class="r-in">  <span class="va">url</span></span>
-<span class="r-in"><span class="op">}</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">url</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "https://eu.httpbin.org/get?foo=123"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">my_return_val</span> <span class="op">&lt;-</span> <span class="st">"mocked request"</span></span>
-<span class="r-in"><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="va">my_return_val</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">my_return_val</span> <span class="op">&lt;-</span> <span class="st">"mocked request"</span></span></span>
+<span class="r-in"><span><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu">mock</span><span class="op">(</span><span class="va">my_return_val</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="mock.html">with_mock</a></span><span class="op">(</span>`curl::curl` <span class="op">=</span> <span class="va">mk</span>, <span class="fu">dl</span><span class="op">(</span><span class="va">url</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mocked request"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -166,7 +177,7 @@ one.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

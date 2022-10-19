@@ -1,5 +1,5 @@
 ## Test environments
-* local R installation, macOS 10.15, R 4.0.3
+* local R installation, macOS 12.6, R 4.2.1
 * GitHub Actions (ubuntu-16.04): 3.3, 3.4, 3.5, oldrel, release, devel
 * GitHub Actions (windows): 3.6, release
 * Github Actions (macOS): release
@@ -9,4 +9,4 @@
 
 0 errors | 0 warnings | 0 notes
 
-* This is re-submission of a minor bugfix update.
+* This is (late) submission of a minor bugfix update.

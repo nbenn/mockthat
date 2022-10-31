@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Function Mocking for Unit Testing in R • mockthat</title>
+<title>Function Mocking for Unit Testing • mockthat</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Function Mocking for Unit Testing in R">
+<script src="pkgdown.js"></script><meta property="og:title" content="Function Mocking for Unit Testing">
 <meta property="og:description" content="With the deprecation of mocking capabilities shipped with
     testthat as of edition 3 it is left to third-party packages to replace
     this functionality, which in some test-scenarios is essential in order to
@@ -77,6 +77,7 @@
 <div class="page-header"><h1 id="mockthat">mockthat<a class="anchor" aria-label="anchor" href="#mockthat"></a>
 </h1></div>
 <!-- badges: start -->
+
 <p>With version 3.0.0 of <code>testthat</code>, mocking capabilities provided by <a href="https://testthat.r-lib.org/reference/with_mock.html" class="external-link"><code>testthat::with_mock()</code></a> and <a href="https://testthat.r-lib.org/reference/with_mock.html" class="external-link"><code>testthat::local_mock()</code></a> have been deprecated under edition 3. This leaves implementation of function mocking for unit testing to third-party packages, of which two have been published on CRAN: <a href="https://cran.r-project.org/package=mockery" class="external-link"><code>mockery</code></a> and <a href="https://cran.r-project.org/package=mockr" class="external-link"><code>mockr</code></a>. While all currently available mocking implementations have their limitations, what sets <code>mockthat</code> apart from <code>mockery</code> and <code>mockr</code> is coping with S3 dispatch (see example below).</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
